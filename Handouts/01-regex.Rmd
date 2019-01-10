@@ -1,9 +1,8 @@
 ---
-title: Regular Expressions
-date: January 15, 2015
-author: Benjamin Schmidt
-
----
+title: "Regular Expressions"
+output: pdf_document
+date: '2019-01-10'
+...
 
 Regular Expressions
 ===================
@@ -11,7 +10,9 @@ Regular Expressions
 Anyone working with text files will often find regular expressions to be very helpful.
 In most digital humanities projects, you'll spend as much time cleaning data as you'll
 spend actually analyzing it. Unless you want to clean data entirely by hand,
-you'll need to use some basic regular expressions to parse through them.
+you'll want to use some basic regular expressions to parse through them.
+
+If you're working on a website, too, knowing your way around regular expressions can frequently save you enormous amounts of time; rather than tediously replace the same pattern over and over again, you can 
 
 Regular expressions (or "regexes") are, to put it generally, 
 a vocabulary for abstractly describing text.
@@ -21,16 +22,46 @@ If you have a document full of date ranges, or e-mail addresses,
 or any other sort of text, you probably have some structured entities
 just like this.
 But a computer needs to be told what a "date range" or
-an "e-mail address" is. Regular expressions offer a way to define them.
+an "e-mail address" is. Regular expressions offer a *formal language*--
+the first such language we'll be looking at--to define them.
 
-A year range might be defined, say, as `[0-9]+-[0-9]+`.
+## Formal Languages
+
+We start here because formal languages are fundamental to what we do in this class. There is no one, single thing called 'computer programming' 
+that you can do or not do; and programming can take place outside of computer. There are, instead, a wide variety of *formal languages*--many of which
+have been developed for computers, but some of which precede them or work outside them--that can be used to describe cultural phenomena.
+
+We'll be using the programming language 'R' in this class, but we'll using it primarily to look at
+various different formal languages. One, called `tidyr`, offers a way of describing things that you
+can do to dataframes (which is, more or less, data stored in spreadsheets). Another, called `ggplot`, 
+is a language for describing how you build a chart. If we work with the HathiTrust, we'll delve into
+a formal language I wrote specifically for pulling aggregate word count information out of digital libraries.
+
+A formal language is at once incredibly expressive and incredibly limiting and frustrating.
+It is frustrating because it limits you; everyone wants to be able to just tell a computer what to 
+do, and the train of errors that result from a basic command will drive you crazy.
+
+But it is, at the same time, **expressive** because it lets you describe almost anything you might want to 
+describe; and, because it offers a firm vocabulary of operations, makes it easier for you to think about 
+doing things that might not occurr to you. 
+
+Regexes are more frustrating than expressive much of the time--we start with them because they're fundamental 
+for working with text in particular, but don't be too put off. They require more memorization (or looking up in a table)
+than anything else we'll be doing.
+
+## Examples
+
+To start with some general examples: a year range might be defined, say, as "two series of numbers separated by a dash" `[0-9]+-[0-9]+`.
 
 Valid e-mail addresses are more complicated: you might search for them 
-using the expression:
+using an expression that looks for numbers, letters, and underscores separated by first
+an @ sign and then by some number of dots.
  `^([A-Z0-9._%+-]+)@([A-Z0-9.-]+)\.([A-Z]{2,4})$`.
-Obviously that's longer than any single e-mail address. But you can understand what's
-going on inside it, and why you might want to.
-
+Obviously that's longer than any single e-mail address--and I don't expect you to read it yet!
+The point is: regular expressions let you describe strings of letters and numbers 
+*abstractly* and *formally*. The abstraction means that you can create
+any sort of generalization; the *formalization* means that you can then 
+use them to search, edit, or filter.
 
 Where to use regexes:
 =====================
@@ -44,24 +75,35 @@ offers one easy-to-use environment with regexes built in. For Windows,
 These are programs well worth installing on your computer--many tedious editing tasks can be 
 sidestepped by reprogramming them as a regular expression.
 
-If you want to unlock the full power of regular expressions, you can find them in most modern computer languages. 
+If you want to unlock the full power of regular expressions, you can find them in most modern computer languages.
+
 `sed` has the classical set of regular expressions, and is easily invoked
-through the command line on a Mac or Linux machine: 
+through the command line on a Mac or Linux machine.
 
-`
+It consists not just of a regular expression, but of an expression and
+its **replacement** pattern. The following little program (if you can call it that)
+replaces every h in a document with an i.
+
+```
 echo "hi" | sed 's/h/i/g;'
-`
+```
 
-If you ever use the command line, the perl one-liner syntax is well worth knowing as well:
-try to figure out what the following will do before pasting it into a terminal.
+If you ever use the command line, the perl one-liner syntax can often be useful.
+Try to figure out what the following will do before pasting it into a terminal.
 
-`
-echo "Some letters look like numbers" | perl -pe 's/o/0/g; s/l/1/g; s/e/3/gx'
-`
+```
+echo "Some letters look like numbers" | perl -pe 's/o/0/g; s/l/1/g; s/e/3/g'
+```
 
 
 Basic search-replace operations
 ===============================
+
+### Custom operators
+
+In a regular expression, most letters mean simply themselves. If you search for "Barack Obama", you'll find the exact string "Barack Obama."
+
+But a number of characters mean something different. Brackets, parentheses, 
 
 ### Basic Operators:
 
@@ -73,8 +115,12 @@ Basic search-replace operations
 
 #### `[]`
 
-You can use brackets to indicate a **range** of characters. Suppose you are searching through the Schmidt family records, but learn that 18th century families often spelled the name "Schmitt." The regular expression `Schmi[td]t` would match either spelling. 
+You can use brackets to indicate a **select** of characters. Suppose you are searching through the Schmidt family records, but learn that 18th century families often spelled the name "Schmitt." The regular expression `Schmi[td]t` would match either spelling.
 
+##### `[^ ]`
+
+An **extremely** useful alternation on the square brackets is to make the first character in it a caret (`^`). This means that is will match anything which
+is *not* in the list of characters. One of the most common patterns is the one above, `[^ ]`; it means 'match anything but a space'. (What would `[^ ]+` match?)
 
 #### `()`
 
@@ -86,16 +132,22 @@ Suppose you have a document full of references to John Quincy Adams, but that it
 
 Note that you need the period too, or else it won't match for `John Q. Adams`.
 
+#### `|`
+
+The vertical bar (sometimes called a 'pipe') means OR. "(Barack|Michelle) Obama" matches EITHER "Barack Obama" or "Michelle Obama," but not both. Note the parentheses there: if you said "Barack|Michelle Obama,"
+it would match only the end.
+
 #### `.`
 
-One last special character is the period, which matches *any single character*. The previous regex, for John Q. Adams, 
+One last special character is the period, which matches *any single character*. The previous regex, for John Q. Adams, would also match "John Qz Adams", because it has a period in it; you have 
 
-The most capacious regex of all is `.*` which tells the parser to match "any character any number of times." There are situations where this can be useful, particularly inside another regex.
+##### The power of `.*`
+
+The most capacious regex of all is `.*` which tells the parser to match "any character any number of times." There are many, many situations where this can be useful, especially combined with other regexes.
 
 #### `{}`
 
 For most cases, `*`, `+`, or `?` will work to capture an expression. But if you want to specify a particular number of times, you can use angle brackets. So to find Santa Claus, you could type `(Ho){3}`.
-
 
 ## Replacements
 
@@ -131,13 +183,6 @@ But what if you actually want to swap any two letters?
 Say you wanted to reformat a list of names from Firstname Lastname format to `Lastname, Firstname`. 
 
 The regex `s/(.*) (.*)/\2, \1/` matches any characters, followed by a space, followed by any characters, and replaces them with the second group and the first group.
-
-### Exercises
-
-1. Reformat the list of women authors so that it is a tab-separated file with columns for "firstname","lastname","birth," and "death" with no additional information.
-2. Delete all text not enclosed inside double quotation marks in "the Waves."
-3. What dictionary words contain the same letter, three times in a row?
-3. Besides the word found above, are there any other words in the dictionary that contain two identical letters 6 times in a row? 7 times in a row?
 
 ## Creating other special characters.
 Other important special characters come from prefacing letters.

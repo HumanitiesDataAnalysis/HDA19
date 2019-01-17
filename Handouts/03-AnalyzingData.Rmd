@@ -11,7 +11,6 @@ library(knitr)
 opts_chunk$set(eval=TRUE, warning=FALSE, message=FALSE)
 ```
 
-
 # Introduction
 
 Now that we know how to read in data, we are finally ready to analyze it. 

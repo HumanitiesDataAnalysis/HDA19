@@ -3,9 +3,7 @@ title: cleaning and tidying data in R
 author: Benjamin Schmidt
 date: 2015-01-22
 output: pdf_document
-
 ---
-
 
 ```{r global_options, include=FALSE}
 library(knitr)
@@ -28,16 +26,18 @@ Some of the most common include the following.
 
 How does the text represent symbols like curly quotation marks or non-English characters like the German "eszett" (ß)? In the last decade, the world has coalesced around the **unicode standard**, which provides a coherent way to represent millions of characters from written languages around the globe. (And plenty of other places, as well; emoji, for instance, are assigned their own unicode space). ASCII, the traditional character set of 1980s American computing, is a subset of Unicode and so works well inside it. Other characters (things like curly quotes) may cause problems. If you find yourself working with a file in a different character encoding, R generally allows you to read the file in by specifying the name of the standard. You will have to Google around.
 
-
 #### Record formats
 
 Even when you're given perfectly formatted data, you may experience some trouble reading it in.
 
-In R, most problems will arise from conventions around **commenting** and **quoting** files. When you use read.table and encounter errors, most often you want to adjust the arguments to `comment.char=""` and `quote.char=""`, which instructs the parser to ignore the "#" sign and quotation marks. Note that some files do use quotation marks as a "quote" character, such as the New Bedford whaling data we looked at in class.
+In R, most problems will arise from conventions around **commenting** and **quoting** files. When you use `read_table` and encounter errors, most often you want to adjust the arguments to comment and quote characters, which instructs the parser to ignore the "#" sign and quotation marks. Note that some files do use quotation marks as a "quote" character, such as the New Bedford whaling data we looked at in class.
 
 Even the simplest of characters can cause problems. If the file was created on a Macintosh, you may find that the end-of-line files aren't behaving as you would expect. This has to do with the so-called "carriage return" character (called `\r` in regular expressions, as opposed to `\n`, the standard newline.
 
-> History moment: the reason for the peculiar behavior of the carriage return and newline has to do with the typewriter operations underlying modern computing: the `\r` symbol was supposed to move the typewriter head to the beginning of the line, while the `\n` newline character pushes the typewriter head down. In practice, `\n` is sufficient to do both; there's actually a third character, the formfeed (`\f`), that usually takes on the job of dropping the cursor down a line. You will almost never see it in use, but it can be handy to insert from time to time if you need your own record breaks.
+> History moment: the reason for the peculiar behavior of the carriage return and newline has to do with the typewriter operations underlying modern computing: 
+> the `\r` symbol was supposed to move the typewriter head to the beginning of the line, while the `\n` newline character pushes the typewriter head down.
+> In practice, `\n` is sufficient to do both; there's actually a third character, the formfeed (`\f`), that usually takes on the job of dropping the
+> cursor down a line. You will almost never see it in use, but it can be handy to insert from time to time if you need your own record breaks.
 
 #### Inconsistent category labels
 
@@ -70,9 +70,12 @@ There's some good descriptive data about people, which suggests a chance for som
 
 Often, if there is something even slightly askew about your input data, `read.table` will fail. This may be frustrating. Try to be grateful, though, instead. This failure is the first aspect of something we'll encounter many times in this class that is a general feature of data analysis: programs that don't receive *exactly* the input the expect will simply fail to work, usually "throwing" an error message of some sort.
 
-
-
 If you have a file previously saved in the csv (comma-separated-value) format, it may be fast to read it it using the `read.csv` function. (This is simply `read.table` with a certain set of constraints.)
+
+
+```{r}
+install.packages("tidyverse")
+```
 
 
 #### Workset: reading in data.
@@ -80,10 +83,14 @@ If you have a file previously saved in the csv (comma-separated-value) format, i
 
 You can read it on your computer by typing the following code.
 
-``` {r}
-crews = read.csv("http://www.whalingmuseum.org/online_exhibits/crewlist/crewlist.csv")
+
+```{r}
+library(tidyverse)
+
+crews = read_csv("http://www.whalingmuseum.org/online_exhibits/crewlist/crewlist.csv")
+
 ```
-So now we have data. But what's in it? 
+You will see some alarming text in red. That's OK! You can read it or try to understand; but the basic problem is that there are '7 parsing failures'. We're not going to worry about them for now.
 
 The first thing to do is simply look at. Going to the "Environment" pane in the upper right-hand corner, you can see what's in here.
 
@@ -91,17 +98,19 @@ Where did this data come from? Did they do a good job transcribing? Here's [an e
 
 But remember, we're doing programming here, not just browsing (plus, that list is limited to the top 1000.)
 
-R is composed of _functions_: each of these apply on an object.
+R is composed of _functions_: each of these apply on an object. Each is, essentially, a little program of its own: you can run it on data, and see what happens.
 
-One useful function to know about is called `head`: it will show the first five elements of a data source.
-In R, the most common data structure is a `data.frame`; it's essentially a table where the rows correspond to observations, and the columns refer to variables.
-(It resembles a spreadsheet or database table).
+In  tidyverse R, the most common data structure is a `data_frame`; it's essentially a table where the rows correspond to observations, and the columns refer to variables.
+(tidyverse R borrows this from the incredibly similarly named 'data.frame' object that R has had since its birth. There are basically interchangeable, but using the modern
+versions helps you avoid a few pitfalls.)
+It resembles a spreadsheet or database table, but every datapoint has a *type*.
 
 In this data set, as you'll see, each row corresponds to an individual crew member, and the columns give information about him, such as the ship he sailed on his, his name, his rank, and so forth.
 
+To look at it, we can start with the simplest program: simply looking at the thing. Type its name and press the green button.
 
 ```{r FirstSummary}
-head(crews)
+crews
 ```
 
 The first thing to do with a new data source is run `summary`, which figures out what the different columns in your database are and gives appropriate descriptions of the types of data in each. For numbers, it gives averages; for categorical data (called 'factors') in R, it lists the most common elements.
@@ -123,40 +132,56 @@ If you don't have Excel (or LibreOffice, the free version), you can read in Exce
 
 There are some obvious problems with the "crews" data we need to fix for analysis.
 
-#### The `$` Operator
-
-The dollar sign in R has a special meaning: it takes a part of a larger structure. With a data.frame, it takes the named column: so to see just the dates, you can type `crews$ApproximateDeparture`.
-
-First we want to determine what kind of data the date field is. In R, the `class` function tells you the data type. With dplyr loaded, there are two ways to apply a function: using parenthesis as below, or the `%>%` construction which **chains** operations together. As you can see, both produce the same result.
-
-``` {r}
-class(crews$ApproximateDeparture)
-
-crews$ApproximateDeparture %>% class()
-
-```
-
-It is a "factor." Factors in R are categorical data; frequently, `read.table` will assume that any type of character data is a factor. (In general, it's often a good idea to supply the argument `stringsAsFactors=FALSE` to `read.table` and `read.csv`, unless you know that you need a factor for your analysis.)
+For example: 'year' should be a number, but is listed as 'character'.
 
 We want to extract the years.  
 
-### Using `gsub` to clean data.
+### Using `mutate` and `str_replace` to clean data.
 
-Note that the date doesn't follow a standard form. We're going to use **regular expressions** again to clean it up. Notice the steps in the chain here. We're creating a new column called "year." Then we convert to a **character** type. Finally, we feed the output into the function `gsub`, which
+Note that the date doesn't follow a standard form. We're going to use **regular expressions** again to clean it up. Notice the steps in the chain here. We're creating a new column called "year." Then, we feed the output into the function `str_replace`, which lets us use a regular expression.
  
- **Remember the function `gsub`:** it is among the most important tools for data cleaning in R you will encounter. It lets you use the full power of regular expressions for find-replace operations. This regular expression is complicated--you may have to refer back to your sheet to see what's going on. Note in particular that the parenthesis are performing a **grouping** operation. `gsub` is a substitution function, so you have to tell it what to replace it with. In this case, the escaped phrase `\\1` tells R to substitute with *the first matched group*. (That's what `\\1` means: `\\2` will match the second matched group, and so forth.)
+ **Remember the function `str_replace`:** it is among the most important tools for data cleaning in R you will encounter. It lets you use the full power of regular expressions for find-replace operations. This regular expression is complicated--you may have to refer back to your sheet to see what's going on. Note in particular that the parenthesis are performing a **grouping** operation. `gsub` is a substitution function, so you have to tell it what to replace it with. In this case, the escaped phrase `\\1` tells R to substitute with *the first matched group*. (That's what `\\1` means: `\\2` will match the second matched group, and so forth.)
 
 One feature of working with regular expressions in R is that you have to supply two backslash characters in front of a special character instead of one.
  
+So: suppose we want to pull 'year' out *as a number*.
+
+The tidyverse has a function `mutate` that changes a dataframe: it either adds a new column, or changes an existing one.
+
+This gets a little complicated, so let's break it down.
+
+*pull* extracts a column so you can look at it.
+
+`str_replace` 
+
 
 ``` {r}
 
-crews$year= crews$ApproximateDeparture %>% as.character %>% gsub(".*([0-9]{4}).*","\\1",.)
+departure = crews %>% pull(ApproximateDeparture)
+
+departure %>% str_replace(".*([0-9]{4}).*", "\\1")
 
 ```
 
+The changes aren't there: we can update the frame by using `=` to reassign.
 
-### Excercises: reading and cleaning data in R
+We also want to make it a number, not a string.
+
+That's done using a special function: `as.numeric`. We can add it to the chain.
+```{r}
+
+departure = departure %>% str_replace(".*([0-9]{4}).*", "\\1") %>% as.numeric
+
+
+```
+
+Finally, we add it to the main file. Now there's a new column called year.
+
+```{r}
+crews = crews %>% mutate(year = departure)
+```
+
+### Exercises: reading and cleaning data in R
 
 
 
@@ -168,7 +193,7 @@ crews$year= crews$ApproximateDeparture %>% as.character %>% gsub(".*([0-9]{4}).*
 
 ``` {r}
 
-crews$year= crews$ApproximateDeparture %>% as.character %>% gsub(".*([0-9]{4}).*","\\1",.)
+crews %>% mutate(year = ApproximateDeparture %>% str_replace(".*([0-9]{4}).*","\\1"))
 
 ```
 
@@ -180,7 +205,6 @@ Fix the following code to read it in, and look at it.
 
 shiptypes = read.csv("????")
 
-
 ```
 
 
@@ -188,7 +212,6 @@ shiptypes = read.csv("????")
 
 ``` {r}
 
-crews$rig= crews$ApproximateDeparture %>% as.character %>% gsub(".*([0-9]{4}).*","\\1",.)
 
 ```
 
@@ -206,12 +229,14 @@ Hadley Wickham's articles on "tidy" data lay out an extremely useful way to thin
 
 ``` {r}
 
+
+
 ```
 
 3. There's another file in the `data` directory called CESTACityData.csv. It was graciously provided by the [Center for Spatial and Textual Analysis at Stanford](https://cesta.stanford.edu/). Read it in. We'll be working with this data set more next week.
 
 ``` {r}
-a = read.csv("data/CESTACityData.csv")
+a = read_csv("../data/CESTACityData.csv")
 ```
 
 

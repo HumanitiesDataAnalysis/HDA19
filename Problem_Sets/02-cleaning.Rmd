@@ -1,7 +1,7 @@
 ---
 title: cleaning and tidying data in R
 author: Benjamin Schmidt
-date: 2015-01-22
+date: 2019-01-19
 output: pdf_document
 ---
 
@@ -85,7 +85,8 @@ You can read it on your computer by typing the following code.
 
 
 ```{r}
-library(tidyverse)
+
+library("tidyverse")
 
 crews = read_csv("http://www.whalingmuseum.org/online_exhibits/crewlist/crewlist.csv")
 
@@ -116,7 +117,9 @@ crews
 The first thing to do with a new data source is run `summary`, which figures out what the different columns in your database are and gives appropriate descriptions of the types of data in each. For numbers, it gives averages; for categorical data (called 'factors') in R, it lists the most common elements.
 
 ```{r SecondSummary}
+
 summary(crews)
+
 ```
 
 
@@ -152,14 +155,15 @@ This gets a little complicated, so let's break it down.
 
 *pull* extracts a column so you can look at it.
 
-`str_replace` 
+`str_replace`
 
-
-``` {r}
+```{r}
 
 departure = crews %>% pull(ApproximateDeparture)
 
 departure %>% str_replace(".*([0-9]{4}).*", "\\1")
+
+
 
 ```
 
@@ -170,8 +174,7 @@ We also want to make it a number, not a string.
 That's done using a special function: `as.numeric`. We can add it to the chain.
 ```{r}
 
-departure = departure %>% str_replace(".*([0-9]{4}).*", "\\1") %>% as.numeric
-
+departure %>% str_replace(".*([0-9]{4}).*", "\\1") %>% as.numeric %>% summary
 
 ```
 
@@ -186,6 +189,7 @@ crews = crews %>% mutate(year = departure)
 
 
 1. Is the New Bedford Crewlist data "tidy" according to Hadley Wickham's standards?
+
 
 
 2. I've pasted below the code that fixes the date field using regular expressions. (We'll get more into just what it does over the next weeks: but an important part of coding is occasionally re-using code that you *don't* completely understand.) Add two more groups using parenthesis and more numbers: make it turn the date into the standard "1865-11-7" format.
@@ -203,12 +207,12 @@ Fix the following code to read it in, and look at it.
 
 ``` {r}
 
-shiptypes = read.csv("????")
+shiptypes = read_csv("????")
 
 ```
 
 
-5. That data will reveal something obviously wrong with the crewlist data. Standardize the ship names in this set using regular expressions and the `$` described above.
+5. That data will reveal something obviously wrong with the crewlist data. Standardize the ship names in this set using regular expressions.
 
 ``` {r}
 
@@ -218,7 +222,7 @@ shiptypes = read.csv("????")
 
 # Reformatting information: the `tidyr` package
 
-Hadley Wickham's articles on "tidy" data lay out an extremely useful way to think about.
+Hadley Wickham's articles on "tidy" data lay out an extremely useful way to think about data.
 
 
 ## Exercises: tidying data
@@ -236,7 +240,7 @@ Hadley Wickham's articles on "tidy" data lay out an extremely useful way to thin
 3. There's another file in the `data` directory called CESTACityData.csv. It was graciously provided by the [Center for Spatial and Textual Analysis at Stanford](https://cesta.stanford.edu/). Read it in. We'll be working with this data set more next week.
 
 ``` {r}
-a = read_csv("../data/CESTACityData.csv")
+a = read_csv("data/CESTACityData.csv")
 ```
 
 
@@ -246,7 +250,7 @@ a = read_csv("../data/CESTACityData.csv")
 
 ```
 
-5. Use the `?` operator to read about the function `write.csv`. Save the result to disk: we'll be exploring it more next week.
+5. Use the `?` operator to read about the function `write_csv`. Save the result to disk: we'll be exploring it more next week.
 
 ``` {r}
 

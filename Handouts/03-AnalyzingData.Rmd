@@ -1,14 +1,14 @@
 ---
 title: "Analyzing Data"
 author: "Ben Schmidt"
-date: "2015-01-29"
+date: "2019-01-29"
 output: pdf_document
 ---
 
 
 ```{r global_options, include=FALSE}
 library(knitr)
-opts_chunk$set(eval=TRUE, warning=FALSE, message=FALSE)
+opts_chunk$set(eval=FALSE, warning=FALSE, message=FALSE)
 ```
 
 # Introduction

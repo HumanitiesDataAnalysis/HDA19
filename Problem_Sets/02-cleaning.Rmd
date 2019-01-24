@@ -196,8 +196,9 @@ crews = crews %>% mutate(year = departure)
 
 
 ``` {r}
-
+library(tidyverse)
 crews %>% mutate(year = ApproximateDeparture %>% str_replace(".*([0-9]{4}).*","\\1"))
+
 
 ```
 
@@ -207,14 +208,16 @@ Fix the following code to read it in, and look at it.
 
 ``` {r}
 
-shiptypes = read_csv("????")
+shiptypes = read_csv("../data/shiptypes.csv")
 
+shiptypes %>% count(Rig)
 ```
 
 
 5. That data will reveal something obviously wrong with the crewlist data. Standardize the ship names in this set using regular expressions.
 
 ``` {r}
+
 
 
 ```

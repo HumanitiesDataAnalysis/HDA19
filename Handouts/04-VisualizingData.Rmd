@@ -1,7 +1,7 @@
 ---
 title: "Visualizing Data: the basics"
 author: "Ben Schmidt"
-date: "2015-02-05"
+date: "2019-01-31"
 output: pdf_document
 ---
 
@@ -41,11 +41,16 @@ The name of this package is `ggplot2`. (`gg` for "Grammar of graphics": `2` beca
 The function `ggplot` generally takes as an argument a single element. For example: if we want to plot the changing urban population of the United States, we can use functions from dplyr to collect it. Then we can create an object `base_plot` that contains the beginnings of the plot.
 
 
-``` {r}
+```{r}
 library(dplyr)
 library(magrittr)
 library(ggplot2)
-populations=read.csv("data/tidied.csv") %>% 
+populations = 
+  read.csv("../data/CESTACityData.csv") %>%
+  gather(year, population, starts_with("X")) %>%
+  mutate(year = year %>% str_replace("X", "") %>% as.numeric)
+
+totalpopulations = populations %>%
   group_by(year) %>% 
   filter(population>0) %>% 
   summarize(USpop = sum(population))
@@ -54,14 +59,6 @@ base_plot = ggplot(populations)
 ```
 
 
-Note that you can pipe this straight in, if you wish: 
-
-``` {r}
-base_plot = read.csv("data/tidied.csv") %>% group_by(year) %>% summarize(pop = sum(population)) %>% ggplot()
-```
-
-When using the `ggvis`, the successor to `ggplot2`, this is the preferred format.
-
 ### 2. Choosing a "geometry" (or plot type)
 
 The next step is choose a particular way to plot the data. This is called a "geometry" in ggplot, and it corresponds roughly to the type of plot that you'll be using. There are many different types of plots that make sense: line charts, bar charts, maps, histograms, and so forth.
@@ -69,7 +66,7 @@ The next step is choose a particular way to plot the data. This is called a "geo
 For this example, we'll make a simple line chart.
 
 
-``` {r}
+```{r}
 
 base_plot + geom_line()
 
@@ -86,9 +83,9 @@ We set this in ggplot using the function `aes`. `aes` specifies the aesthetic ma
 
 You may need to type `as.numeric(year)` instead of year.
 
-``` {r include=TRUE}
+```{r include=TRUE}
 
-ggplot(populations) + 
+ggplot(totalpopulations) + 
   geom_line(colour="blue") + 
   aes(x=year,y=USpop) + 
   geom_point(size=10,alpha=.6,color="blue")
@@ -99,9 +96,9 @@ ggplot(populations) +
 
 Scales are some of the most important elements of any chart. For humanities data, in most cases a logarithmic distribution fits the data better than a straightforward linear one. (Log distributions assume that rather each tick of the axis indicating an increase of a fixed amount, 
 
-``` {r include=TRUE}
+```{r include=TRUE}
 
-ggplot(populations) + 
+ggplot(totalpopulations) + 
   geom_line() + 
   aes(x=year,y=USpop) + 
   scale_y_continuous(trans="log")
@@ -110,6 +107,8 @@ ggplot(populations) +
 
 Other sorts of scales will take other options. For example, a color scale might benefit from manually specifying the colors that you're interested in.
 
+
+
 ### 5. Setting Facets.
 
 Edward Tufte extols "small multiples." In ggplot, this is possible through the `facet` functions: `facet_grid` (when you have both x and y aspects to facet off of) and `facet_wrap` (when you only want to facet off a single thing.)
@@ -117,12 +116,11 @@ Edward Tufte extols "small multiples." In ggplot, this is possible through the `
 Our chart of US urban population can accomplish the same thing for each individual states by first grouping by state in the creation field, and then by faceting by state. Try adding "color" to the aesthetic on one of the variables to make it more attractive.
 
 
-``` {r}
+```{r}
 
-tidied = read.csv("data/tidied.csv") %>% filter(population>0)
-  
-tidied %>% 
+populations %>% 
   group_by(ST,year) %>% 
+  filter(population > 0) %>%
   summarize(pop = sum(population)) %>% 
   ggplot() + 
   geom_line() + 
@@ -142,30 +140,41 @@ Cartesian is not the only coordinate system, though. Two other particularly impo
 
 * `coord_polar` uses polar coordinates: instead of positioning an element by x and y, it positions it by angle and distance. Some quite famous charts use it, such as Florence Nightingale's Coxcomb charts.
 
-![../images/nightingale.jpg]
-
 * `coord_map` allows you, with the `mapproj` package, to make a wide variety of maps in R that project latitude and longitude in ways other than the standard projection system.
 
 
-Because it will form the basis for further work, here is code to plot 
+Because it will form the basis for further work, here is code to plot cities by 
 
-``` {r}
-cities = read.csv("data/tidied.csv") %>% filter(year==1950)
+```{r}
+cities = populations %>% filter(year==1950)
 
-cities %>% filter(LON>0)
-head(cities)
-ggplot(cities) + 
-  aes(x=LON,y=LAT,size=population,color=ST) + 
-  geom_point()
+cities %>%
+   filter(LON < 0) %>%
+  ggplot() + 
+   aes(x=LON,y=LAT,size=population,color=ST) + 
+   geom_point()
 
 ```
 
 
 #### 2. Labels
 
-Charts should have legends.
+Charts should have explanations
 
 The `labs` function lets you specify those.
+
+```{r}
+cities = populations %>% filter(year==1950)
+
+cities %>%
+   filter(LON < 0, ST != "AK", ST != "HI") %>%
+  ggplot() + 
+   aes(x=LON,y=LAT,size=population,color=ST) + 
+   geom_point() + labs(title=("The eastern half of the United States is more populated citywise."))
+   
+
+```
+
 
 #### 3. Themes.
 
@@ -175,8 +184,8 @@ You can specify the appearance of grid lines, legend position, and all sorts of 
 
 We're going to explore these geoms with a cleaned version of the `crews` dataset.
 
-``` {r}
-crews = read.csv("data/CrewlistCleaned.csv")
+```{r}
+crews = read_csv("../data/CrewlistCleaned.csv")
 ```
 
 ## Histograms
@@ -199,29 +208,28 @@ ggplot(crews) + geom_histogram(aes(x=Age))
 
 ## Barplots
 
-When you use a histogram with a _categorical_ variable, it gives you a barplot, as when we look at the types of ships in the sample.
+When you use a histogram with a _categorical_ variable, you ask for a barplot, as when we look at the types of ships in the sample.
 
 ```{r categoricalHistograms}
-ggplot(crews) + geom_histogram(aes(x=Rig))
 ggplot(crews) + geom_bar(aes(x=Rig))
 ```
 
 A barplot is different, though, because we might want to add some more variables in. For example, we can add another aesthetic for 'fill' (which gives the color of the bars):
 
-``` {r}
+```{r}
 ggplot(crews) + geom_bar(aes(x=Rig,fill=Rig))
 ```
 
 
 
 That's a nice chart. But we could also change it so the x-axis contains to information by just setting it to an empty string, and the bars will appear stacked on top of each other.
-``` {r toppedBar}
+```{r toppedBar}
 ggplot(crews) + geom_bar(aes(x="",fill=Rig))
 ```
 
 That's not as good a way of visualizing the information: you have to compare the size of chunks against each other. But if we make one more tweak—setting the y axis to a polar coordinate system—suddenly it becomes very familiar:
 
-``` {r}
+```{r}
 ggplot(crews) + geom_bar(aes(x="",fill=Rig))
 
 ggplot(crews) + geom_bar(aes(x="",fill=Rig)) + coord_polar("y")
@@ -237,12 +245,12 @@ For exploratory data analysis, the scatterplot is to multivariate data what the 
 
 Summary stats are useful, but sometimes you want to compare two types of charts to each other. The next basic chart to use is a scatterplot: in ggplot, you can get this by using "geom_point." Suppose, for example, we want to compare height against age.
 
-``` {r}
+```{r}
 ggplot(crews) + geom_point(aes(x=Age,y=height),alpha=.1)
 ```
 
 
-``` {r}
+```{r}
 ggplot(crews) + geom_point(aes(x=Age,y=height,color=Rig))
 ```
 
@@ -258,9 +266,9 @@ In this case, that doesn't give you all that much useful: but it points you to a
 
 Just do some survey plots on the data we have. (You might need the hexbin package for this)
 
-``` {r}
+```{r}
 
-ggplot() + 
+ggplot(crews) + 
   geom_point(size=1,alpha=.2,position=position_jitter(h=1/12,w=1),color='red') + 
   labs(title='Height in feet') + 
   aes(x=Age,y=height) +
@@ -274,7 +282,7 @@ ggplot(crews %>% filter(height>36,height<7*12),aes(y=height/12,x=Age)) + labs(ti
 crews %>% filter(height>36,height<7*12) %>% ggplot() + aes(y=height/12,x=as.Date(date))+ geom_point(size=2,alpha=.5) + labs(title='Height in feet') + geom_smooth() + xlim(as.Date("1860-1-1"),as.Date("1930-1-1"))
 
 
-ggplot(crews[crews$Hair!="",]) + geom_bar(aes(x=Hair)) + coord_flip()
+ggplot(crews %>% filter(!is.na(Hair)))+ geom_bar(aes(x=Hair)) + coord_flip()
 
 
 ```
@@ -289,54 +297,9 @@ For them, you can use the `geom_text` function. It works just like `geom_point`,
 
 What does this chart show? What variables (if any) do you think are driving this chart?
 
-``` {r}
+```{r}
 
 crews %>% group_by(Residence) %>% mutate(count=n()) %>% filter(count>50) %>% summarize(averageHeight = mean(height,na.rm=T),averageYear = mean(as.Date(date),na.rm=T)) %>% ggplot() + geom_text(aes(y=averageHeight,x=averageYear,label=Residence))
-```
-
-Exercises
----------
-
-
-1. Going back to dplyr: Make a map of the United States in which each city is colorized by the year that it had its maximum population according to the census data.
-
-``` {r Exercise 1}
-
 
 ```
-
-2. Using the `rank` function and `facet`, make a `geom_text` plot that ranks the top ten cities for each census.
-
-
-
-
-## Exercises
-
-
-Review:
-
-For a review question, we're going to introduce a new set of data: bibligraphic information.
-
-The bibliography data comes from the open library. It's in three forms: decide which you want to use based on your interests and your computer's power.
-
-1. The following will read in a set of data called "titles." 
-
-``` {r}
-titles = read.table("data/booktitlesShort.tsv",sep="\t",comment.char = "",quote="",stringsAsFactors = F) %>% as.tbl
-
-```
-
-3. The function `nchar` gives the number of characters in a string. Pipe that `titles` data frame into a `dplyr` `mutate` function to add a new variable, `title_length`, that is the number of characters in the title. Choose an appropriate way to plot this against at least two of the three following variables; "year," "language", and "state." Don't plot too many points: try using a filter operation to reduce the number of dimensions for categorical variables. You might want to plot only the three largest states, for example.
-
-``` {r}
-
-```
-
-4. Test some other questions about the bibliographic dataset: that is to say, engage in exploratory data analysis! We'll talk about these in class, and you'll write them up for next week.
-
-``` {r}
-
-```
-
-5. (In the process of doing that, optionally: use the state field to make some merges.)
 

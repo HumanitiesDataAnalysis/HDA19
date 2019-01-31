@@ -1,0 +1,29 @@
+---
+title: "04-Visualization"
+author: "Ben Schmidt"
+date: "January 31, 2019"
+output: html_document
+---
+
+Exercises
+---------
+
+
+1. Going back to dplyr: Make a map of the United States in which each city is colorized by the year that it had its maximum population according to the census data.
+
+```{r Exercise 1}
+
+
+```
+
+2. Using the `rank` function and `facet`, make a `geom_text` plot that ranks the top ten cities for each census.
+
+```{r Exercise 2s}
+
+```
+
+## Exercises
+
+
+Let's look at gender in the Library of Congress catalog. We'll start from here: https://github.com/HumanitiesDataAnalysis/LOCgender. See the `.Rmd` file there for more instructions.
+

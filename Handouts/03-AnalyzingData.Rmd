@@ -1,14 +1,14 @@
 ---
 title: "Analyzing Data"
 author: "Ben Schmidt"
-date: "2015-01-29"
+date: "2019-01-29"
 output: pdf_document
 ---
 
 
 ```{r global_options, include=FALSE}
 library(knitr)
-opts_chunk$set(eval=TRUE, warning=FALSE, message=FALSE)
+opts_chunk$set(eval=FALSE, warning=FALSE, message=FALSE)
 ```
 
 # Introduction
@@ -85,8 +85,7 @@ The easiest way to filter is when you know exact which value you're looking for.
 Passing data through the filter operator reduces it down to only those entries that match your criteria. In the previous section, you have noticed that the `summary` function on crews showed a single 82-year-old. By filtering to only persons aged 82, we can see who exactly that was.
 
 
-``` {r}
-
+```{r}
 crews = read_csv("../data/CrewlistCleaned.csv")
 crews %>% filter(Age==82)
 ```

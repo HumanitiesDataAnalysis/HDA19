@@ -1,6 +1,8 @@
 ---
 title: "Grouping, filtering, and counting"
-output: html_notebook
+author: "Ben Schmidt"
+date: "2019-01-29"
+output: pdf_document
 ---
 
 Week 3 Problem set.
@@ -11,7 +13,7 @@ Week 3 Problem set.
 
 ```{r global_options, include=FALSE}
 library(knitr)
-opts_chunk$set(eval=TRUE, warning=FALSE, message=FALSE)
+opts_chunk$set(eval=FALSE, warning=FALSE, message=FALSE)
 ```
 
 ``` {r Exercise 1a}
@@ -23,7 +25,7 @@ crews = read_csv("../data/CrewlistCleaned.csv")
 2. Using `filter`: what is the name of that youngest person? When did he or she sail?
 
 ``` {r Exercise 2a}
-
+?set_tidy_names
 ```
 
 
@@ -144,6 +146,7 @@ books %>%
   mutate(
   country = subjects %>% str_replace(country_regex, "\\1")
 ) %>% filter(!is.na(country)) %>%
-  group_
+  group_by(country) %>% 
+  summarize(count=n())
 ```
 

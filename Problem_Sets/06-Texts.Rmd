@@ -98,7 +98,23 @@ If you want to go nuts, make it into a Twitter bot.
 1. Choose a text collection to work with. It can be the full text from above: it can be a TEI set,
    which I've set up some tools for reading into a tidy format: or it can be a set of Hathi Trust book ids.
 
+
+```{r}
+
+if (!(require(devtools)) {install.packages("devtools")})
+  
+devtools::install_github("HumanitiesDataAnalysis/hathidy")
+
+
+library(hathidy)
+hathi_counts(c("mdp.39015076166985"), cols = c("page", "token", "section"))
+
+
+```
+
 2. Use some kind of metadata to break it into one or more groups.
 
 3. Think about some comparisons of unigram counts.
+
+
 

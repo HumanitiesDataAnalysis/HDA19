@@ -1,0 +1,76 @@
+---
+title: "Merge Author Data"
+author: "Ben Schmidt"
+date: "2019-02-19"
+output: html_document
+---
+
+
+```{r global_options, include=FALSE}
+library(knitr)
+library(magrittr)
+library(ggplot2)
+library(dplyr)
+
+#opts_chunk$set(eval=FALSE, warning=FALSE, message=FALSE)
+```
+
+
+# Joins
+
+How do you merge in classification data to our set? This requires an additional abstraction about working with tabular data: the **join**.
+
+The classical case for a join is when you 
+
+I've added a file to the server that contains labels for Library of Congress classifications.
+This has a number of different columns: the code you've already seen, a description 
+of the subject for the code, and a more general column that I've defined somewhat capriciously.
+
+```{r}
+library(tidyverse)
+classifications = read_tsv("../data/LOC_classification.tsv")
+classifications
+```
+
+This should work well with the LOC gender data; here's an example using it with a database of book titles you should have in your local folder.
+
+``` {r}
+shortTitles = read_tsv("../data/booktitlesShort.tsv")
+
+head(shortTitles)
+```
+
+This can be done with the `inner_join` function of dplyr. By default it merges based on shared column names; you can feed it a precise list of columns to match on, but it is often easier to simply use `mutate` to rename the columns.
+
+``` {r}
+
+labelled = classifications %>% mutate(lc1 = class) %>% inner_join(shortTitles)
+
+```
+
+`inner_join` drops rows that it ca . Only about a third of the books in the `shortTitles` folder have an lc1 that matches the classifications field. The `nrow` function tells how many rows a datafraem has: here you can see that joining it to the genre lookup loses almost two-thirds the entries.
+
+``` {r}
+nrow(shortTitles)
+nrow(labelled)
+
+```
+
+To see what's being dropped, you can use the `anti_join` function that shows only elements in the first frame that are unmatched in the second one. Here you see the other way of doing a join: adding a 'by' argument to the join function.
+
+``` {r}
+shortTitles %>% anti_join(classifications, by = c("lc1" = "class")) %>% sample_n(30) %>% select(lc1)
+```
+
+If you want to keep all elements from the left frame and just put `NA` values into the various fields defined by the right one, you can use the `left_join` function which prioritizes things from the left. (`outer_join` privileges both fields, and `right_join` privileges the second one.) "Left" and "right" refer, obviously, to the order that you pass them t the function.
+
+
+``` {r}
+counts = classifications %>% mutate(lc1 = class) %>% inner_join(shortTitles) %>% 
+  mutate(workyear = as.numeric(workyear)) %>%
+  group_by(BenSubject, workyear) %>% 
+  summarize(count=n())
+
+counts %>%
+  ggplot() + geom_bar(stat="identity") + aes(x=workyear, y = count, fill=BenSubject) + lims(x = c(1850, 1880))
+```

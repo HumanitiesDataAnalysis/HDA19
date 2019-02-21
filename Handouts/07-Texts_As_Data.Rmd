@@ -9,9 +9,7 @@ output: pdf_document
 
 ```{r global_options, include=FALSE}
 library(knitr)
-library(magrittr)
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 
 opts_chunk$set(eval=FALSE, warning=FALSE, message=FALSE)
 ```
@@ -38,36 +36,36 @@ This is not "tidy data" in Wickham's sense, so it can be easily generated from i
 
 
 ``` {r}
+library(tidytext)
 
-library(dplyr)
-library(ggplot2)
+all_files = list.files("../data/SOTUS/", full.names = T)
 
-readSOTU = function(file) {
-  message(file)
-  text = scan(file,sep="\n",what="raw")
-  words = text %>% 
-    strsplit("[^A-Za-z]") %>% 
-    unlist
-  SOTU = data.frame(word=words,year=gsub(".*(\\d{4}).*","\\1",file),stringsAsFactors = FALSE)  
-  return(SOTU)
+readSOTU = function(filename) {
+  read_lines(filename) %>%
+    tibble(text = .) %>% 
+    filter(text != "") %>%
+    # Add a counter for the paragraph number
+    mutate(paragraph = 1:n()) %>%
+    unnest_tokens(word, text) %>%
+    mutate(filename = filename %>% str_replace(".*/", "") %>% 
+             str_replace(".txt", ""))
 }
 
-SOTUS = list.files("data/SOTUS",full.names = TRUE)
-
-SOTUS = SOTUS[grep("/19[89]|/20[10]",SOTUS)]
-
-all = lapply(SOTUS,readSOTU)
-allSOTUs = rbind_all(all)
-
+allSOTUs = tibble(file = all_files) %>%
+  group_by(file) %>% 
+  do(readSOTU(.$file)) %>%
+  mutate(year = as.numeric(filename))
 ```
 
 With state of the union addresses, the most obvious definition of a document is a speech: we have that here in the frame "year". 
 
 We also want to know how many times each word is used. You know how to do that: through a group_by and `summarize` function.
 
-
 ```{r}
-counts = allSOTUs %>% mutate(word=tolower(word)) %>% group_by(year,word) %>% summarize(count=n()) %>% ungroup
+counts = allSOTUs %>% 
+  mutate(word=tolower(word)) %>% 
+  group_by(year,word) %>% 
+  summarize(count=n()) %>% ungroup
 ```
 
 In a term-document matrix, the terms are the column names, and the values are the counts. To make this into a term-document matrix, we simply have to spread out the terms along these lines.
@@ -79,30 +77,35 @@ td = counts %>% filter(word!="") %>% spread(word,count,fill=0)
 counts = counts %>% filter(word!="")
 ```
 
-Ordinarily, you might want to look at a `data.frame` in this situation. That's a bad idea here. The function `dim` lets you see how big a data.frame is: in this case, we have one that is 36 rows by 10,000 columns. Those 10,000 columns are the distinct rows.
+Usually, we've looked at data with many rows and few columns. Now we have one that is 229 columns rows by 29,000 columns. Those 10,000 columns are the distinct rows.
 
 Later, we'll work with these huge matrices. But for now, let's set up a filter to make the frame a little more manageable.
+
+Note that I'm also renaming the 'year' column to '.year' with a period. That's because 'year' is a word as well as a column, and in the 
+wide form we can't have columns capturing both meanings
 
 ``` {r}
 
 td = counts %>% group_by(word) %>% 
-  filter(sum(count)>100,!word %in% c("","year")) %>% 
+  mutate(.year = year) %>% select(-year) %>%
+  filter(sum(count)>100) %>% 
   ungroup %>% 
   spread(word,count,fill=0)
 
-dim(td)
+td
 
 ```
 
 
 ``` {r}
 
-ggplot(td) + aes(x=america,y=freedom,label=year) + geom_text() 
+ggplot(td) + aes(x=america,y=freedom,label=.year) + geom_text() 
 
-ggplot(td) + aes(x=year %>% as.numeric,y=freedom,label=year) + geom_line() 
+ggplot(td) + aes(x=.year %>% as.numeric,y=freedom,label=year) + geom_line() 
 
-ggplot(td) + aes(x=the,y=and,label=year) + geom_text()
+ggplot(td) + aes(x=the,y=and,label=.year) + geom_text()
 
+ggplot(td) + aes(x=the,y=and,color=.year) + geom_path() + scale_color_viridis_c() + scale_x_log10() + scale_y_log10()
 
 ```
 
@@ -110,7 +113,7 @@ ggplot(td) + aes(x=the,y=and,label=year) + geom_text()
 With this sort of data, it's more useful to compare against a different set of texts.
 
 ``` {r}
-parties = read.table("http://hda15.benschmidt.org/sets/data/SOTUparties.tsv",sep="\t",header=T) %>% mutate(year=as.character(year))
+parties = read_csv("../data/SOTUmetadata.csv", col_names = c(".president", ".year", ".party", ".sotu_type"), skip = 1) # "skip" because we're using new rownames
 
 td = td %>% inner_join(parties)
 
@@ -120,16 +123,17 @@ td = td %>% inner_join(parties)
 Here's an elaborate ggplot of usage of "and" and "for"
 
 ``` {r}
-ggplot(td) + aes(x=`for`,y=and,label=name,color=party,pch=name) + geom_point(size=5) + scale_color_manual(values=c("blue","red"))
+
+td %>% filter(.year > 1980) %>%
+ggplot() + aes(x=`for`,y=and,pch=.president,color=.party) + geom_point(size=5) + scale_color_brewer(type="qual")
   
 ```
 
 Note that we can get even more complicated: for instance, adding together lots of different words by using math in the aesthetic definition.
 
-(Also note a little trick here. I want to use backticks around the word "if" because it's a **reserved word** in the R syntax.)
-
 ``` {r}
-ggplot(td) + aes(x=welfare/freedom,y=freedom+a,label=name,color=party,pch=name) + geom_point(size=5)
+td %>% filter(.year > 1980) %>%
+ggplot() + aes(x=america/world,y=military/economy,color=.party,pch=.president) + geom_point(size=5) + scale_x_log10() + scale_y_log10()
 ```
 
 As an in-class challenge--can you come up with a chart that accurately distinguishes between Democrats and Republicans?
@@ -153,7 +157,8 @@ We can normalize these plots so that the term-document matrix gives the relative
 
 
 ``` {r}
-normalized = counts %>% group_by(year) %>% 
+normalized = counts %>% 
+  group_by(year) %>% 
   mutate(ratio = count/sum(count)) %>% 
   ungroup
 
@@ -165,14 +170,61 @@ normalized %>% filter(word=="i") %>% ggplot() + aes(x=as.numeric(year),y=ratio) 
 
 
 ``` {r}
-norm_data_frame = normalized %>% group_by(word) %>% filter(mean(ratio) > .001) %>% select(-count)
+norm_data_frame = normalized %>% group_by(word) %>% filter(mean(ratio) > .0005) %>% select(-count)
 
-norm_td  = norm_data_frame %>% ungroup %>% filter(word!="year") %>% spread(key=word,value=ratio,fill=0)
+norm_td  = norm_data_frame %>% ungroup %>% mutate(.year = year) %>% select(-year) %>% spread(word,ratio,fill=0)
 ```
 
 
 If you install the `rgl` library, you can look at some of these plots in 3 dimensions. This is confusing. (And in the version I'm giving you, maybe broken.)
 
+But it helps you understand the idea we're getting at here: in higher dimensions, you can project it down.
+
 ``` {r}
 rgl::plot3d(x=as.numeric(norm_td$a),y=norm_td$freedom,z=norm_td$education,col="red")
 ```
+
+
+# Principal Components
+
+Principal Components are a way of finding a projection that maximizes variation. Instead of the actual dimensions, it finds the single strongest line through the high-dimensional space; and then the next; and then the next; and so forth.
+
+```{r}
+
+principal_components_model = norm_td %>% select(-.year) %>% 
+  prcomp # Do a principal components analysis: this is built into R. 
+
+PC_SOTUS = principal_components_model %>% 
+  predict %>% # Predict the pincipal components locations for each document.
+  as_tibble() %>% # It's an old type of data called a matrix; we want a data frame.
+  bind_cols(norm_td %>% select(.year)) # Attach just the years from the original which have been lost., binding along the column edges
+
+PC_SOTUS %>% ggplot() + geom_point(aes(x=PC1, y = PC2, color = .year)) + scale_color_viridis_c()
+
+```
+
+The same plot, but colored by post-1980 president. Here you can see the the principal components are separating out Barack Obama and Bill Clinton separately from the other presidents
+```{r}
+PC_SOTUS %>% filter(.year > 1977) %>% inner_join(parties) %>% 
+   ggplot() + geom_point(aes(x=PC1, y = PC2, color = .president, pch=.party), size = 5) + scale_color_brewer(type='qual')
+```
+These models are created simply as weights against the word counts.
+
+
+The more modern speeches are characterized by using language like "we", "our", and "i";
+the older ones by 'the', 'of', 'which', and 'be'.
+
+```{r}
+word_weights = principal_components_model %>% pluck("rotation") %>% as_tibble(rownames = "word")
+
+word_weights %>% gather(dimension, weight, -word) %>% filter(dimension == "PC1") %>% arrange(-weight)
+word_weights %>% gather(dimension, weight, -word) %>% filter(dimension == "PC1") %>% arrange(weight)
+
+```
+We can plot these too! It's a little harder to read, but these begin to cluster around different types of vocabulary.
+
+```{r}
+word_weights %>% filter(abs(PC1) > .02) %>% ggplot() + geom_text(aes(x=PC1, y = PC2, label = word))
+```
+
+The "Word Space" that Gavin describes is, in the broadest sense, related to this positioning of words together by document. 

@@ -1,0 +1,178 @@
+---
+title: "Word2Vec"
+author: "Ben Schmidt"
+date: "2019-02-28"
+output: html_document
+---
+
+
+Load in a binary word2vec file. **Note**: you'll need to download these from https://www.dropbox.com/sh/jv0nq2tpc5dvscj/AADLQmB9uobTja7xv934ZFQ2a?dl=0.
+
+```{r}
+library(tidyverse)
+
+if (!require(wordVectors)) {devtools::install_github("bmschmidt/wordVectors")}
+
+model = read.vectors("~/Dropbox/RMP.bin")
+```
+
+
+If you only want to **read**, not **train**, models, you can run the following block instead.
+
+```{r}
+library(ggplot2)
+library(tidyr)
+ENV = new.env(parent = .BaseNamespaceEnv)
+source("https://raw.githubusercontent.com/bmschmidt/wordVectors/master/R/matrixFunctions.R",local = ENV)
+```
+
+# Similarity
+
+The most basic thing that you can do in a vector model is to look at an individual vector. So we'll try it: but this is basically pointless.
+
+```{r}
+model[[c("science"), average=FALSE]]
+```
+
+Nearly as basic, but more useful, is finding words that are used in a similar *context*.
+
+```{r}
+model %>% closest_to("numbers")
+```
+
+So: let's try to look at some individual lists of words. So let's choose a seed word: I'm going to pick "unprofessional," because I know it's interesting in reviews.
+
+```{r}
+model %>% closest_to("unprofessional")
+```
+
+
+Let's go with the flow here. I think it's funny that students mis-spell "unproffesional," of all words: so let's look at more words like that.
+```{r}
+model %>% closest_to(~"unproffesional", n=50)
+```
+
+
+So now we can start to build up a more elaborate list. Note the funny little carat in front of the word "unproffesional"; this is a special trick that lets us do math inside an expression with words. So now we can start to define a new vector by adding together 
+
+```{r}
+model %>% closest_to(~"unproffesional" + "incosiderate" + "degrating" + "disrespectfull" + "beligerant", n=50)
+```
+
+## Plotting
+
+I really believe in visualization as a way to work through documents like this. We can start to see how these words relate to each other by looking at the best 2d projection of the high dimensional space using principal components analysis. This requires a program that has two chunks; first to build up a list of words; and then to
+plot the portions of the full model that 
+
+```{r}
+unprofessional_words = model %>% closest_to(~"unproffesional" + "incosiderate" + "degrating" + "disrespectfull" + "beligerant", n=50) %>% pull(word)
+model[[unprofessional_words, average=F]] %>% 
+  plot(method="pca")
+```
+
+
+We can use these plots to look at the local structure of any slice that we like.
+
+```{r}
+unprofessional_words = model %>% closest_to(~"terrible", n=50) %>% pull(word)
+model[[unprofessional_words, average=F]] %>% 
+  plot(method="pca")
+```
+
+
+## Comparing similarities.
+
+OK: here's where humanities and science vector models really start to differ. I think we want to compare two *different* models.
+
+Let's first look at the words near to "history" in 
+```{r}
+history_words = model %>% closest_to(~"history", n=50) %>% pull(word)
+model[[history_words, average=F]] %>% 
+  plot(method="pca")
+```
+
+How is the word history used differently in a different model?
+
+We can load in a new model, and run *almost* the same code; note that here I change the word to 'model2'. 
+
+I'm going to use "glove", which is a general-purpose model.
+
+```{r}
+model2 = read.vectors("glove.bin")
+history_words = model2 %>% closest_to(~"history", n=50) %>% pull(word)
+model2[[history_words, average=F]] %>% 
+  plot(method="pca")
+```
+
+But remember those similarity scores? We can actually compare these two models directly. I have to pass a few more arguments to the functions here to get cleanly formatted outputs.
+
+```{r}
+all_history = model %>% closest_to(~ "history",n=Inf, fancy_names=F)
+all_history_model2 = model2 %>% closest_to(~ "history", n = Inf,fancy_names=F)
+
+all_history %>% 
+  inner_join(all_history_model2, by=c("word")) %>% # Merge them together
+  arrange(-(similarity.x^2 + similarity.y^2)) %>% # sort by decreasing size of the combined similarities
+  head(100) %>%
+  filter(word!="history") %>%
+  ggplot() + geom_text(aes(x=similarity.x,y=similarity.y,label=word))  
+
+```
+
+
+# Extracting Vectors
+
+```{r}
+model = read.vectors("RMP.bin")
+
+model %>% closest_to(~"dude" - "man" + "woman")
+
+```
+
+
+```{r}
+gender = model[["man"]] - model[["woman"]]
+quality = model[["good"]]  - model[["bad"]]
+
+list1 = model %>% closest_to(gender, n=Inf, fancy_names=F)
+list2 = model %>% closest_to(quality, n=Inf, fancy_names=F)
+
+list1 %>% inner_join(list2,by="word") %>%
+  arrange(-(similarity.x^2 + similarity.y^2)) %>%
+#  filter(!grepl("[A-Z]", word)) %>% # No capitals; uncomment line to keep it.
+  head(500) %>% ggplot() + geom_text() + 
+  aes(x=similarity.x, y = similarity.y, label=word)
+
+
+```
+
+
+# Rejection: eliminating dimensions
+
+We can use a process called vector rejection to squash out the vector space so it loses its knowledge of vector spaces. This lets us compare between two different versions of the same vectorspace to see how different words shift.
+
+```{r}
+genderless = model %>% reject(~"male" - "female")
+```
+
+
+# Alignment
+
+I don't plan on getting to this! But you can align models against each other.
+
+```{r}
+# install.packages("abind")
+
+
+source("http://benschmidt.org/word2vec_workshop/alignment.R")
+
+
+models = read_group(list.files(".",pattern = "^19[0-9]+"))
+
+models[[3]] %>% nearest_to("navy")
+
+aligned = align_models(models,shared_vocab_only = TRUE)
+
+stanford_plot(aligned, word = c("navy"), 15, transform_type = "pca")
+
+```

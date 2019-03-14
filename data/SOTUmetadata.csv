@@ -155,7 +155,6 @@ Franklin D. Roosevelt,1942,Democratic,speech
 Franklin D. Roosevelt,1943,Democratic,speech
 Franklin D. Roosevelt,1944,Democratic,speech
 Franklin D. Roosevelt,1945,Democratic,speech
-Franklin D. Roosevelt,1945,Democratic,written
 Harry S Truman,1946,Democratic,written
 Harry S Truman,1947,Democratic,speech
 Harry S Truman,1948,Democratic,speech
@@ -164,7 +163,6 @@ Harry S Truman,1950,Democratic,speech
 Harry S Truman,1951,Democratic,speech
 Harry S Truman,1952,Democratic,speech
 Dwight D. Eisenhower,1953,Republican,written
-Harry S Truman,1953,Democratic,written
 Dwight D. Eisenhower,1954,Republican,speech
 Dwight D. Eisenhower,1955,Republican,speech
 Dwight D. Eisenhower,1956,Republican,speech
@@ -174,7 +172,6 @@ Dwight D. Eisenhower,1958,Republican,speech
 Dwight D. Eisenhower,1959,Republican,speech
 Dwight D. Eisenhower,1960,Republican,speech
 John F. Kennedy,1961,Democratic,written
-Dwight D. Eisenhower,1961,Republican,written
 John F. Kennedy,1962,Democratic,speech
 John F. Kennedy,1963,Democratic,speech
 Lyndon B. Johnson,1964,Democratic,speech
@@ -186,20 +183,14 @@ Lyndon B. Johnson,1969,Democratic,written
 Richard M. Nixon,1970,Republican,speech
 Richard M. Nixon,1971,Republican,speech
 Richard M. Nixon,1972,Republican,speech
-Richard M. Nixon,1972,Republican,written
 Richard M. Nixon,1974,Republican,speech
-Richard M. Nixon,1974,Republican,written
 Gerald R. Ford,1975,Republican,speech
 Gerald R. Ford,1976,Republican,speech
 Gerald R. Ford,1977,Republican,written
 Jimmy Carter,1978,Democratic,speech
-Jimmy Carter,1978,Democratic,written
 Jimmy Carter,1979,Democratic,speech
-Jimmy Carter,1979,Democratic,written
 Jimmy Carter,1980,Democratic,speech
-Jimmy Carter,1980,Democratic,written
 Ronald Reagan,1981,Republican,speech
-Jimmy Carter,1981,Democratic,written
 Ronald Reagan,1982,Republican,speech
 Ronald Reagan,1983,Republican,speech
 Ronald Reagan,1984,Republican,speech

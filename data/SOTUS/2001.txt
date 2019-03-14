@@ -6,7 +6,7 @@ The last time I visited the Capitol, I came to take an oath on the steps of this
 
 America today is a nation with great challenges but greater resources. An artist using statistics as a brush could paint two very different pictures of our country. One would have warning signs: increasing layoffs, rising energy prices, too many failing schools, persistent poverty, the stubborn vestiges of racism. Another picture would be full of blessings: a balanced budget, big surpluses, a military that is second to none, a country at peace with its neighbors, technology that is revolutionizing the world, and our greatest strength, concerned citizens who care for our country and care for each other. 
 
-Neither picture is complete in and of itself. And tonight I challenge and invite Congress to work with me to use the resources of one picture to repaint the other, to direct the advantages of our time to solve the problems of our people. Some of these resources will come from Government&mdash;some, but not all. 
+Neither picture is complete in and of itself. And tonight I challenge and invite Congress to work with me to use the resources of one picture to repaint the other, to direct the advantages of our time to solve the problems of our people. Some of these resources will come from Government--;some, but not all. 
 
 Year after year in Washington, budget debates seem to come down to an old, tired argument: on one side, those who want more Government, regardless of the cost; on the other, those who want less Government, regardless of the need. We should leave those arguments to the last century and chart a different course. 
 
@@ -14,7 +14,7 @@ Government has a role, and an important role. Yet, too much Government crowds ou
 
 And my budget is based on that philosophy. It is reasonable, and it is responsible. It meets our obligations and funds our growing needs. We increase spending next year for Social Security and Medicare and other entitlement programs by $81 billion. We've increased spending for discretionary programs by a very responsible 4 percent, above the rate of inflation. My plan pays down an unprecedented amount of our national debt. And then, when money is still left over, my plan returns it to the people who earned it in the first place. 
 
-A budget's impact is counted in dollars but measured in lives. Excellent schools, quality health care, a secure retirement, a cleaner environment, a stronger defense: These are all important needs, and we fund them. The highest percentage increase in our budget should go to our children's education. Education is not my top priority&mdash; education is my top priority, and by supporting this budget, you'll make it yours, as well. 
+A budget's impact is counted in dollars but measured in lives. Excellent schools, quality health care, a secure retirement, a cleaner environment, a stronger defense: These are all important needs, and we fund them. The highest percentage increase in our budget should go to our children's education. Education is not my top priority--; education is my top priority, and by supporting this budget, you'll make it yours, as well. 
 
 Reading is the foundation of all learning. So during the next 5 years, we triple spending, adding $5 billion to help every child in America learn to read. Values are important, so we've tripled funding for character education to teach our children not only reading and writing but right from wrong. We've increased funding to train and recruit teachers, because we know a good education starts with a good teacher. 
 
@@ -54,7 +54,7 @@ Government cannot be replaced by charities or volunteers. Government should not 
 
 Our budget provides more than $700 million over the next 10 years for a Federal compassion capital fund, with a focused and noble mission, to provide a mentor to the more than one million children with a parent in prison and to support other local efforts to fight illiteracy, teen pregnancy, drug addiction, and other difficult problems. 
 
-With us tonight is the mayor of Philadelphia. Please help me welcome Mayor John Street. [Applause] Mayor Street has encouraged faith-based and community organizations to make a significant difference in Philadelphia. He's invited me to his city this summer to see compassionate action. I'm personally aware of just how effective the mayor is. Mayor Street's a Democrat. Let the record show, I lost his city&mdash;big time. But some things are bigger than politics. So I look forward to coming to your city, to see your faith-based programs in action. 
+With us tonight is the mayor of Philadelphia. Please help me welcome Mayor John Street. [Applause] Mayor Street has encouraged faith-based and community organizations to make a significant difference in Philadelphia. He's invited me to his city this summer to see compassionate action. I'm personally aware of just how effective the mayor is. Mayor Street's a Democrat. Let the record show, I lost his city--;big time. But some things are bigger than politics. So I look forward to coming to your city, to see your faith-based programs in action. 
 
 As Government promotes compassion, it also must promote justice. Too many of our citizens have cause to doubt our Nation's justice when the law points a finger of suspicion at groups instead of individuals. All our citizens are created equal and must be treated equally. 
 
@@ -80,7 +80,7 @@ A tax rate of 15 percent is too high for those who earn low wages, so we must lo
 
 This reform will be welcome relief for America's small businesses, which often pay taxes at the highest rate. And help for small business means jobs for Americans. We simplified the Tax Code by reducing the number of tax rates from the current five rates to four lower ones, 10 percent, 15, 25, and 33 percent. In my plan, no one is targeted in or targeted out. Everyone who pays income taxes will get relief. 
 
-Our Government should not tax and, thereby, discourage marriage, so we reduced the marriage penalty. I want to help families rear and support their children, so we doubled the child credit to $1,000 per child. It's not fair to tax the same earnings twice&mdash;once when you earn them, and again when you die&mdash;so we must repeal the death tax. 
+Our Government should not tax and, thereby, discourage marriage, so we reduced the marriage penalty. I want to help families rear and support their children, so we doubled the child credit to $1,000 per child. It's not fair to tax the same earnings twice--;once when you earn them, and again when you die--;so we must repeal the death tax. 
 
 These changes add up to significant help. A typical family with two children will save $1,600 a year on their Federal income taxes. Now, $1,600 may not sound like a lot to some, but it means a lot to many families: $1,600 buys gas for two cars for an entire year; it pays tuition for a year at a community college; it pays the average family grocery bill for 3 months. That's real money. 
 
@@ -132,7 +132,7 @@ No one can speak in this Capitol and not be awed by its history. At so many turn
 
 Yet America's purpose is never found only in statues or history. America's purpose always stands before us. Our generation must show courage in a time of blessing, as our Nation has always shown in times of crisis. And our courage, issue by issue, can gather to greatness and serve our country. This is the privilege and responsibility we share. And if we work together, we can prove that public service is noble. 
 
-We all came here for a reason. We all have things we want to accomplish and promises to keep. Juntos podemos&mdash;together we can. 
+We all came here for a reason. We all have things we want to accomplish and promises to keep. Juntos podemos--;together we can. 
 
 We can make Americans proud of their Government. Together we can share in the credit of making our country more prosperous and generous and just and earn from our conscience and from our fellow citizens the highest possible praise: Well done, good and faithful servants. 
 

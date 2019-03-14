@@ -4,9 +4,9 @@ In Reporting on the state of the nation, I have felt it necessary on previous oc
 
 A war which threatened to envelop the world in flames has been averted; but it has become increasingly clear that world peace is not assured.
 
-All about us rage undeclared wars&mdash;military and economic. All about us grow more deadly armaments&mdash;military and economic. All about us are threats of new aggression military and economic.
+All about us rage undeclared wars--;military and economic. All about us grow more deadly armaments--;military and economic. All about us are threats of new aggression military and economic.
 
-Storms from abroad directly challenge three institutions indispensable to Americans, now as always. The first is religion. It is the source of the other two&mdash;democracy and international good faith.
+Storms from abroad directly challenge three institutions indispensable to Americans, now as always. The first is religion. It is the source of the other two--;democracy and international good faith.
 
 Religion, by teaching man his relationship to God, gives the individual a sense of his own dignity and teaches him to respect himself by respecting his neighbors.
 
@@ -14,7 +14,7 @@ Democracy, the practice of self-government, is a covenant among free men to resp
 
 International good faith, a sister of democracy, springs from the will of civilized nations of men to respect the rights and liberties of other nations of men.
 
-In a modern civilization, all three&mdash;religion, democracy and international good faith- complement and support each other.
+In a modern civilization, all three--;religion, democracy and international good faith- complement and support each other.
 
 Where freedom of religion has been attacked, the attack has come from sources opposed to democracy. Where democracy has been overthrown, the spirit of free worship has disappeared. And where religion and democracy have vanished, good faith and reason in international affairs have given way to strident ambition and brute force.
 
@@ -36,7 +36,7 @@ In our foreign relations we have learned from the past what not to do. From new 
 
 We have learned that effective timing of defense, and the distant points from which attacks may be launched are completely different from what they were twenty years ago.
 
-We have learned that survival cannot be guaranteed by arming after the attack begins&mdash;for there is new range and speed to offense.
+We have learned that survival cannot be guaranteed by arming after the attack begins--;for there is new range and speed to offense.
 
 We have learned that long before any overt. military act, aggression begins with preliminaries of propaganda, subsidized penetration, the loosening of ties of good will, the stirring of prejudice and the incitement to disunion.
 
@@ -44,19 +44,19 @@ We have learned that God-fearing democracies of the world which observe the sanc
 
 Obviously they must proceed along practical, peaceful lines. But the mere fact that we rightly decline to intervene with arms to prevent acts of aggression does not mean that we must act as if there were no aggression at all. Words may be futile, but war is not the only means of commanding a decent respect for the opinions of mankind. There are many methods short of war, but stronger and more effective than mere words, of bringing home to aggressor governments the aggregate sentiments of our own people.
 
-At the very least, we can and should avoid any action, or any lack of action, which will encourage, assist or build up an aggressor. We have learned that when we deliberately try to legislate neutrality, our neutrality laws may operate unevenly and unfairly&mdash;may actually give aid to an aggressor and deny it to the victim. The instinct of self-preservation should warn us that we ought not to let that happen any more.
+At the very least, we can and should avoid any action, or any lack of action, which will encourage, assist or build up an aggressor. We have learned that when we deliberately try to legislate neutrality, our neutrality laws may operate unevenly and unfairly--;may actually give aid to an aggressor and deny it to the victim. The instinct of self-preservation should warn us that we ought not to let that happen any more.
 
-And we have learned something else&mdash;the old, old lesson that probability of attack is mightily decreased by the assurance of an ever ready defense. Since 1931, nearly eight years ago, world events of thunderous import have moved with lightning speed. During these eight years many of our people clung to the hope that the innate decency of mankind would protect the unprepared who showed their innate trust in mankind. Today we are all wiser&mdash;and sadder.
+And we have learned something else--;the old, old lesson that probability of attack is mightily decreased by the assurance of an ever ready defense. Since 1931, nearly eight years ago, world events of thunderous import have moved with lightning speed. During these eight years many of our people clung to the hope that the innate decency of mankind would protect the unprepared who showed their innate trust in mankind. Today we are all wiser--;and sadder.
 
-Under modern conditions what we mean by "adequate defense"&mdash;a policy subscribed to by all of us&mdash;must be divided into three elements. First, we must have armed forces and defenses strong enough to ward off sudden attack against strategic positions and key facilities essential to ensure sustained resistance and ultimate victory. Secondly, we must have the organization and location of those key facilities so that they may be immediately utilized and rapidly expanded to meet all needs without danger of serious interruption by enemy attack.
+Under modern conditions what we mean by "adequate defense"--;a policy subscribed to by all of us--;must be divided into three elements. First, we must have armed forces and defenses strong enough to ward off sudden attack against strategic positions and key facilities essential to ensure sustained resistance and ultimate victory. Secondly, we must have the organization and location of those key facilities so that they may be immediately utilized and rapidly expanded to meet all needs without danger of serious interruption by enemy attack.
 
 In the course of a few days I shall send you a special message making recommendations for those two essentials of defense against danger which we cannot safely assume will not come.
 
-If these first two essentials are reasonably provided for, we must be able confidently to invoke the third element, the underlying strength of citizenship&mdash;the self-confidence, the ability, the imagination and the devotion that give the staying power to see things through.
+If these first two essentials are reasonably provided for, we must be able confidently to invoke the third element, the underlying strength of citizenship--;the self-confidence, the ability, the imagination and the devotion that give the staying power to see things through.
 
 A strong and united nation may be destroyed if it is unprepared against sudden attack. But even a nation well armed and well organized from a strictly military standpoint may, after a period of time, meet defeat if it is unnerved by self-distrust, endangered by class prejudice, by dissension between capital and labor, by false economy and by other unsolved social problems at home.
 
-In meeting the troubles of the world we must meet them as one people&mdash;with a unity born of the fact that for generations those who have come to our shores, representing many kindreds and tongues, have been welded by common opportunity into a united patriotism. If another form of government can present a united front in its attack on a democracy, the attack must and will be met by a united democracy. Such a democracy can and must exist in the United States.
+In meeting the troubles of the world we must meet them as one people--;with a unity born of the fact that for generations those who have come to our shores, representing many kindreds and tongues, have been welded by common opportunity into a united patriotism. If another form of government can present a united front in its attack on a democracy, the attack must and will be met by a united democracy. Such a democracy can and must exist in the United States.
 
 A dictatorship may command the full strength of a regimented nation. But the united strength of a democratic nation can be mustered only when its people, educated by modern standards to know what is going on and where they are going, have conviction that they are receiving as large a share of opportunity for development, as large a share of material success and of human dignity, as they have a right to receive.
 
@@ -72,7 +72,7 @@ We are conserving and developing natural resources-land, water power, forests.
 
 We are trying to provide necessary food, shelter and medical care for the health of our population.
 
-We are putting agriculture&mdash;our system of food and fibre supply&mdash;on a sounder basis.
+We are putting agriculture--;our system of food and fibre supply--;on a sounder basis.
 
 We are strengthening the weakest spot in our system of industrial supply- its long smouldering labor difficulties.
 
@@ -84,11 +84,11 @@ We have sustained the morale of all the population by the dignified recognition 
 
 Above all, we have made the American people conscious of their interrelationship and their interdependence. They sense a common destiny and a common need of each other. Differences of occupation, geography, race and religion no longer obscure the nation's fundamental unity in thought and in action.
 
-We have our difficulties, true&mdash;but we are a wiser and a tougher nation than we were in 1929, or in 1932.
+We have our difficulties, true--;but we are a wiser and a tougher nation than we were in 1929, or in 1932.
 
 Never have there been six years of such far-flung internal preparedness in our history. And this has been done without any dictator's power to command, without conscription of labor or confiscation of capital, without concentration camps and without a scratch on freedom of speech, freedom of the press or the rest of the Bill of Rights.
 
-We see things now that we could not see along the way. The tools of government which we had in 1933 are outmoded. We have had to forge new tools for a new role of government operating in a democracy&mdash;a role of new responsibility for new needs and increased responsibility for old needs, long neglected.
+We see things now that we could not see along the way. The tools of government which we had in 1933 are outmoded. We have had to forge new tools for a new role of government operating in a democracy--;a role of new responsibility for new needs and increased responsibility for old needs, long neglected.
 
 Some of these tools had to be roughly shaped and still need some machining down. Many of those who fought bitterly against the forging of these new tools welcome their use today. The American people, as a whole, have accepted them. The Nation looks to the Congress to improve the new machinery which we have permanently installed, provided that in the process the social usefulness of the machinery is not destroyed or impaired.
 
@@ -96,7 +96,7 @@ All of us agree that we should simplify and improve laws if experience and opera
 
 Most of us agree that for the sake of employer and employee alike we must find ways to end factional labor strife and employer-employee disputes.
 
-Most of us recognize that none of these tools can be put to maximum effectiveness unless the executive processes of government are revamped&mdash;reorganized, if you will&mdash;into more effective combination. And even after such reorganization it will take time to develop administrative personnel and experience in order to use our new tools with a minimum of mistakes. The Congress, of course, needs no further information on this.
+Most of us recognize that none of these tools can be put to maximum effectiveness unless the executive processes of government are revamped--;reorganized, if you will--;into more effective combination. And even after such reorganization it will take time to develop administrative personnel and experience in order to use our new tools with a minimum of mistakes. The Congress, of course, needs no further information on this.
 
 With this exception of legislation to provide greater government efficiency, and with the exception of legislation to ameliorate our railroad and other transportation problems, the past three Congresses have met in part or in whole the pressing needs of the new order of things.
 
@@ -108,25 +108,25 @@ This time element forces us to still greater efforts to attain the full employme
 
 The first duty of our statesmanship is to bring capital and man-power together.
 
-Dictatorships do this by main force. By using main force they apparently succeed at it&mdash;for the moment. However we abhor their methods, we are compelled to admit that they have obtained substantial utilization of all their material and human resources. Like it or not, they have solved, for a time at least, the problem of idle men and idle capital. Can we compete with them by boldly seeking methods of putting idle men and idle capital together and, at the same time, remain within our American way of life, within the Bill of Rights, and within the bounds of what is, from our point of view, civilization itself?
+Dictatorships do this by main force. By using main force they apparently succeed at it--;for the moment. However we abhor their methods, we are compelled to admit that they have obtained substantial utilization of all their material and human resources. Like it or not, they have solved, for a time at least, the problem of idle men and idle capital. Can we compete with them by boldly seeking methods of putting idle men and idle capital together and, at the same time, remain within our American way of life, within the Bill of Rights, and within the bounds of what is, from our point of view, civilization itself?
 
 We suffer from a great unemployment of capital. Many people have the idea that as a nation we are overburdened with debt and are spending more than we can afford. That is not so. Despite our Federal Government expenditures the entire debt of our national economic system, public and private together, is no larger today than it was in 1929, and the interest thereon is far less than it was in 1929.
 
-The object is to put capital&mdash;private as well as public&mdash;to work.
+The object is to put capital--;private as well as public--;to work.
 
 We want to get enough capital and labor at work to give us a total turnover of business, a total national income, of at least eighty billion dollars a year. At that figure we shall have a substantial reduction of unemployment; and the Federal Revenues will be sufficient to balance the current level of cash expenditures on the basis of the existing tax structure. That figure can be attained, working within the framework of our traditional profit system.
 
 The factors in attaining and maintaining that amount of national income are many and complicated.
 
-They include more widespread understanding among business men of many changes which world conditions and technological improvements have brought to our economy over the last twenty years&mdash;changes in the interrelationship of price and volume and employment, for example- changes of the kind in which business men are now educating themselves through excellent opportunities like the so-called "monopoly investigation.
+They include more widespread understanding among business men of many changes which world conditions and technological improvements have brought to our economy over the last twenty years--;changes in the interrelationship of price and volume and employment, for example- changes of the kind in which business men are now educating themselves through excellent opportunities like the so-called "monopoly investigation.
 
 They include a perfecting of our farm program to protect farmers' income and consumers' purchasing power from alternate risks of crop gluts and crop shortages.
 
 They include wholehearted acceptance of new standards of honesty in our financial markets.
 
-They include reconcilement of enormous, antagonistic interests&mdash;some of them long in litigation&mdash;in the railroad and general transportation field.
+They include reconcilement of enormous, antagonistic interests--;some of them long in litigation--;in the railroad and general transportation field.
 
-They include the working out of new techniques&mdash;private, state and federal&mdash;to protect the public interest in and to develop wider markets for electric power.
+They include the working out of new techniques--;private, state and federal--;to protect the public interest in and to develop wider markets for electric power.
 
 They include a revamping of the tax relationships between federal, state and local units of government, and consideration of relatively small tax increases to adjust inequalities without interfering with the aggregate income of the American people.
 
@@ -148,13 +148,13 @@ Certain expenditures we cannot possibly reduce at this session, such as the inte
 
 The Congress alone has the power to do all this, as it is the appropriating branch of the government.
 
-The other approach to the question of government spending takes the position that this Nation ought not to be and need not be only a sixty billion dollar nation; that at this moment it has the men and the resources sufficient to make it at least an eighty billion dollar nation. This school of thought does not believe that it can become an eighty billion dollar nation in the near future if government cuts its operations by one-third. It is convinced that if we were to try it, we would invite disaster&mdash;and that we would not long remain even a sixty billion dollar nation. There are many complicated factors with which we have to deal, but we have learned that it is unsafe to make abrupt reductions at any time in our net expenditure program.
+The other approach to the question of government spending takes the position that this Nation ought not to be and need not be only a sixty billion dollar nation; that at this moment it has the men and the resources sufficient to make it at least an eighty billion dollar nation. This school of thought does not believe that it can become an eighty billion dollar nation in the near future if government cuts its operations by one-third. It is convinced that if we were to try it, we would invite disaster--;and that we would not long remain even a sixty billion dollar nation. There are many complicated factors with which we have to deal, but we have learned that it is unsafe to make abrupt reductions at any time in our net expenditure program.
 
 By our common sense action of resuming government activities last spring, we have reversed a recession and started the new rising tide of prosperity and national income which we are now just beginning to enjoy.
 
 If government activities are fully maintained, there is a good prospect of our becoming an eighty billion dollar country in a very short time. With such a national income, present tax laws will yield enough each year to balance each year's expenses.
 
-It is my conviction that down in their hearts the American public&mdash;industry, agriculture, finance&mdash;want this Congress to do whatever needs to be done to raise our national income to eighty billion dollars a year.
+It is my conviction that down in their hearts the American public--;industry, agriculture, finance--;want this Congress to do whatever needs to be done to raise our national income to eighty billion dollars a year.
 
 Investing soundly must preclude spending wastefully. To guard against opportunist appropriations, I have on several occasions addressed the Congress on the importance of permanent long-range planning. I hope, therefore, that following my recommendation of last year, a permanent agency will be set up and authorized to report on the urgency and desirability of the various types of government investment.
 
@@ -162,7 +162,7 @@ Investment for prosperity can be made in a democracy.
 
 I hear some people say, "This is all so complicated. There are certain advantages in a dictatorship. It gets rid of labor trouble, of unemployment, of wasted motion and of having to do your own thinking."
 
-My answer is, "Yes, but it also gets rid of some other things which we Americans intend very definitely to keep&mdash;and we still intend to do our own thinking."
+My answer is, "Yes, but it also gets rid of some other things which we Americans intend very definitely to keep--;and we still intend to do our own thinking."
 
 It will cost us taxes and the voluntary risk of capital to attain some of the practical advantages which other forms of government have acquired.
 

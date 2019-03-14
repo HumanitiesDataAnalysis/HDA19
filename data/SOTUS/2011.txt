@@ -16,7 +16,7 @@ We are poised for progress. Two years after the worst recession most of us have 
 
 But we have never measured progress by these yardsticks alone. We measure progress by the success of our people, by the jobs they can find and the quality of life those jobs offer, by the prospects of a small-business owner who dreams of turning a good idea into a thriving enterprise, by the opportunities for a better life that we pass on to our children. 
 
-That's the project the American people want us to work on&mdash;together. 
+That's the project the American people want us to work on--;together. 
 
 Now, we did that in December. Thanks to the tax cuts we passed, Americans' paychecks are a little bigger today. Every business can write off the full cost of new investments that they make this year. And these steps, taken by Democrats and Republicans, will grow the economy and add to the more than 1 million private sector jobs created last year. 
 
@@ -38,9 +38,9 @@ The future is ours to win. But to get there, we can't just stand still. As Rober
 
 And now it's our turn. We know what it takes to compete for the jobs and industries of our time. We need to out-innovate, out-educate, and out-build the rest of the world. We have to make America the best place on Earth to do business. We need to take responsibility for our deficit and reform our Government. That's how our people will prosper. That's how we'll win the future. And tonight, I'd like to talk about how we get there. 
 
-The first step in winning the future is encouraging American innovation. None of us can predict with certainty what the next big industry will be or where the new jobs will come from. Thirty years ago, we couldn't know that something called the Internet would lead to an economic revolution. What we can do&mdash;what America does better than anyone else&mdash;is spark the creativity and imagination of our people. We're the nation that put cars in driveways and computers in offices; the nation of Edison and the Wright brothers, of Google and Facebook. In America, innovation doesn't just change our lives. It is how we make our living. 
+The first step in winning the future is encouraging American innovation. None of us can predict with certainty what the next big industry will be or where the new jobs will come from. Thirty years ago, we couldn't know that something called the Internet would lead to an economic revolution. What we can do--;what America does better than anyone else--;is spark the creativity and imagination of our people. We're the nation that put cars in driveways and computers in offices; the nation of Edison and the Wright brothers, of Google and Facebook. In America, innovation doesn't just change our lives. It is how we make our living. 
 
-Our free enterprise system is what drives innovation. But because it's not always profitable for companies to invest in basic research, throughout our history, our Government has provided cutting-edge scientists and inventors with the support that they need. That's what planted the seeds for the Internet. That's what helped make possible things like computer chips and GPS. Just think of all the good jobs&mdash;from manufacturing to retail&mdash;that have come from these breakthroughs. 
+Our free enterprise system is what drives innovation. But because it's not always profitable for companies to invest in basic research, throughout our history, our Government has provided cutting-edge scientists and inventors with the support that they need. That's what planted the seeds for the Internet. That's what helped make possible things like computer chips and GPS. Just think of all the good jobs--;from manufacturing to retail--;that have come from these breakthroughs. 
 
 Half a century ago, when the Soviets beat us into space with the launch of a satellite called Sputnik, we had no idea how we would beat them to the Moon. The science wasn't even there yet. NASA didn't exist. But after investing in better research and education, we didn't just surpass the Soviets; we unleashed a wave of innovation that created new industries and millions of new jobs. 
 
@@ -96,7 +96,7 @@ We'll put more Americans to work repairing crumbling roads and bridges. We'll ma
 
 Within 25 years, our goal is to give 80 percent of Americans access to high-speed rail. This could allow you to go places in half the time it takes to travel by car. For some trips, it will be faster than flying, without the pat-down. [Laughter] As we speak, routes in California and the Midwest are already underway. 
 
-Within the next 5 years, we'll make it possible for businesses to deploy the next generation of high-speed wireless coverage to 98 percent of all Americans. This isn't just about&mdash;this isn't about faster Internet or fewer dropped calls. It's about connecting every part of America to the digital age. It's about a rural community in Iowa or Alabama where farmers and small-business owners will be able to sell their products all over the world. It's about a firefighter who can download the design of a burning building onto a handheld device, a student who can take classes with a digital textbook, or a patient who can have face-to-face video chats with her doctor. 
+Within the next 5 years, we'll make it possible for businesses to deploy the next generation of high-speed wireless coverage to 98 percent of all Americans. This isn't just about--;this isn't about faster Internet or fewer dropped calls. It's about connecting every part of America to the digital age. It's about a rural community in Iowa or Alabama where farmers and small-business owners will be able to sell their products all over the world. It's about a firefighter who can download the design of a burning building onto a handheld device, a student who can take classes with a digital textbook, or a patient who can have face-to-face video chats with her doctor. 
 
 All these investments, in innovation, education, and infrastructure, will make America a better place to do business and create jobs. But to help our companies compete, we also have to knock down barriers that stand in the way of their success. 
 
@@ -114,9 +114,9 @@ To reduce barriers to growth and investment, I've ordered a review of Government
 
 Now, I have heard rumors that a few of you still have concerns about our new health care law. [Laughter] So let me be the first to say that anything can be improved. If you have ideas about how to improve this law by making care better or more affordable, I am eager to work with you. We can start right now by correcting a flaw in the legislation that has placed an unnecessary bookkeeping burden on small businesses. 
 
-What I'm not willing to do&mdash;what I'm not willing to do is go back to the days when insurance companies could deny someone coverage because of a preexisting condition. 
+What I'm not willing to do--;what I'm not willing to do is go back to the days when insurance companies could deny someone coverage because of a preexisting condition. 
 
-I'm not willing to tell James Howard, a brain cancer patient from Texas, that his treatment might not be covered. I'm not willing to tell Jim Houser, a small-business man from Oregon, that he has to go back to paying $5,000 more to cover his employees. As we speak, this law is making prescription drugs cheaper for seniors and giving uninsured students a chance to stay on their patients'&mdash;parents' coverage. 
+I'm not willing to tell James Howard, a brain cancer patient from Texas, that his treatment might not be covered. I'm not willing to tell Jim Houser, a small-business man from Oregon, that he has to go back to paying $5,000 more to cover his employees. As we speak, this law is making prescription drugs cheaper for seniors and giving uninsured students a chance to stay on their patients'--;parents' coverage. 
 
 So I say to this chamber tonight: Instead of refighting the battles of the last 2 years, let's fix what needs fixing, and let's move forward. 
 
@@ -154,7 +154,7 @@ Now, we've made great strides over the last 2 years in using technology and gett
 
 In the coming year, we'll also work to rebuild people's faith in the institution of Government. Because you deserve to know exactly how and where your tax dollars are being spent, you'll be able to go to a web site and get that information for the very first time in history. Because you deserve to know when your elected officials are meeting with lobbyists, I ask Congress to do what the White House has already done: put that information online. And because the American people deserve to know that special interests aren't larding up legislation with pet projects, both parties in Congress should know this: If a bill comes to my desk with earmarks inside, I will veto it. I will veto it. 
 
-The 21st-century Government that's open and competent, a government that lives within its means, an economy that's driven by new skills and new ideas&mdash;our success in this new and changing world will require reform, responsibility, and innovation. It will also require us to approach that world with a new level of engagement in our foreign affairs. 
+The 21st-century Government that's open and competent, a government that lives within its means, an economy that's driven by new skills and new ideas--;our success in this new and changing world will require reform, responsibility, and innovation. It will also require us to approach that world with a new level of engagement in our foreign affairs. 
 
 Just as jobs and businesses can now race across borders, so can new threats and new challenges. No single wall separates East and West. No one rival superpower is aligned against us. 
 
@@ -178,7 +178,7 @@ This is just a part of how we're shaping a world that favors peace and prosperit
 
 This March, I will travel to Brazil, Chile, and El Salvador to forge new alliances across the Americas. Around the globe, we're standing with those who take responsibility, helping farmers grow more food, supporting doctors who care for the sick, and combating the corruption that can rot a society and rob people of opportunity. 
 
-Recent events have shown us that what sets us apart must not just be our power&mdash;it must also be the purpose behind it. In south Sudan&mdash;with our assistance&mdash;the people were finally able to vote for independence after years of war. Thousands lined up before dawn. People danced in the streets. One man who lost four of his brothers at war summed up the scene around him. "This was a battlefield for most of my life," he said. "Now we want to be free." 
+Recent events have shown us that what sets us apart must not just be our power--;it must also be the purpose behind it. In south Sudan--;with our assistance--;the people were finally able to vote for independence after years of war. Thousands lined up before dawn. People danced in the streets. One man who lost four of his brothers at war summed up the scene around him. "This was a battlefield for most of my life," he said. "Now we want to be free." 
 
 And we saw that same desire to be free in Tunisia, where the will of the people proved more powerful than the writ of a dictator. And tonight let us be clear: The United States of America stands with the people of Tunisia and supports the democratic aspirations of all people. 
 
@@ -198,13 +198,13 @@ We may have differences in policy, but we all believe in the rights enshrined in
 
 That dream is why I can stand here before you tonight. That dream is why a working-class kid from Scranton can sit behind me. [Laughter] That dream is why someone who began by sweeping the floors of his father's Cincinnati bar can preside as Speaker of the House in the greatest nation on Earth. 
 
-That dream&mdash;that American Dream&mdash;is what drove the Allen Brothers to reinvent their roofing company for a new era. It's what drove those students at Forsyth Tech to learn a new skill and work towards the future. And that dream is the story of a small-business owner named Brandon Fisher. 
+That dream--;that American Dream--;is what drove the Allen Brothers to reinvent their roofing company for a new era. It's what drove those students at Forsyth Tech to learn a new skill and work towards the future. And that dream is the story of a small-business owner named Brandon Fisher. 
 
 Brandon started a company in Berlin, Pennsylvania, that specializes in a new kind of drilling technology. And one day last summer, he saw the news that halfway across the world, 33 men were trapped in a Chilean mine, and no one knew how to save them. 
 
 But Brandon thought his company could help. And so he designed a rescue that would come to be known as Plan B. His employees worked around the clock to manufacture the necessary drilling equipment, and Brandon left for Chile. 
 
-Along with others, he began drilling a 2,000-foot hole into the ground, working 3 or 4 hour&mdash;3 or 4 days at a time without any sleep. Thirty-seven days later, Plan B succeeded, and the miners were rescued. But because he didn't want all of the attention, Brandon wasn't there when the miners emerged. He'd already gone back home, back to work on his next project. 
+Along with others, he began drilling a 2,000-foot hole into the ground, working 3 or 4 hour--;3 or 4 days at a time without any sleep. Thirty-seven days later, Plan B succeeded, and the miners were rescued. But because he didn't want all of the attention, Brandon wasn't there when the miners emerged. He'd already gone back home, back to work on his next project. 
 
 And later, one of his employees said of the rescue, "We proved that Center Rock is a little company, but we do big things." 
 

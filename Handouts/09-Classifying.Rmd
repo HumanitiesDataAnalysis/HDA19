@@ -1,0 +1,704 @@
+---
+title: "Week 9: Classifying"
+author: "Ben Schmidt"
+output: pdf_document
+---
+
+
+# Comparing and Classifying
+
+```{r global_options, include=FALSE}
+library(tidyverse)
+library(tidytext)
+```
+
+## Code organization: sourcing functions.
+
+You remember that we've been cutting and pasting in large chunks of code periodically--to read in the SOTUs, and so forth.
+
+Probably you've been frustrated by this. But it's not the only one! 
+Just as we can group commonly used lines of code into a function and apply them one at a time, we can also group commonly used *functions* together into a single file. 
+You'll find it on the course repository called "commonFunctions.R".
+
+We've already seen functions to read in data like `read_csv` and `read_table`. The `source` function reads in a file location, but **as code**.
+It provides an easy way to share and test code without having to cut and paste continually.
+
+RStudio even provides an extremely useful checkbox in the upper left-hand corner of every `.R` file called "source on save." That means that every time you save the file, the code will get run, instantly applying any changes to functions you've made.
+
+This can be an extremely useful way to organize your work. But two notes.
+
+1. You must save into a file with the suffix `.R`. We've been working mostly in RMarkdown files, because they let you type out text and explanations. But they can't be directly imported.
+2. As a rule, the functions you save in a file you'll be `source`ing repeatedly should not actually *do* anything--they should instead *give functions that will later do things as needed*.
+So for instance, if you have a complicated set of rules for reading in and transforming a file, *you shouldn't read in the file inside the functions file*; instead you should write a function that will do the reading when you ask it to. It's OK to have a few things that aren't functions: the name of a directory where you store data, say, or a bunch of calls to load libraries. As a rule, if your `source` command takes more than 4 seconds, you should do things differently.
+
+```{r loadSOTUs, warning = FALSE}
+source("../R/commonFunctions.R")
+
+allSOTUs <- read_all_SOTUs()
+```
+
+If that doesn't work, you can keep doing the same some of work on the existing files.
+
+Then we'll use the trick from last week with `spread` to make a term document matrix consisting of words that appear more than 1000 times.
+
+
+## Comparing texts
+
+But there are many other methods. For specific variations of what it means to ask "what books use word x more", you can think about TF-IDF, Dunning Log-likelihood, or Mann-Whitney scores.  
+
+### TF-IDF: or, let's build a search engine.
+
+One old trick of information retrieval still used widely in search engines is something called 'TF-IDF.'
+
+A core problem of information retrieval is that, especially with multiword phrases, people don't 
+necessarily type what they want. They might, for example,
+search a journal article for the words `iraq america war`. One of these words--sharecroppers--
+is much less common than the other two; but if you placed both into 
+
+{XXX_cite}
+
+
+One solution might simply to be to say: *rare words* are the most informative, so weight 
+
+It's based in an intuition related to Zipf's law, about how heavily words are *clustered* in documents.
+
+Here's how to think about it. The most common words in State of the Union addresses are words like
+'of', 'by', and 'the' that appear in virtually every State of the Union.
+The rarest words probably only appear in a single document. But what happens if we *compare* those
+two distributions to each other? We can use the `n()` function to count both words and documents, and
+make a comparison between the two.
+
+To best see how this works, it's good to have more than the 200 State of the Union addresses,
+so we're going to break up each address into 2,000 word chunks, giving us about 1,000 documents of roughly equal length.
+The code below breaks this up into four steps to make it clearer what's going on:
+
+```{r createWordStatistics, cache=TRUE}
+
+source("../R/commonFunctions.R")
+library(tidytext)
+allSOTUs <- read_all_SOTUs()
+
+# Add 2000-word chunks
+allSOTUs <- allSOTUs %>%
+  group_by(filename) %>%
+  add_chunks(chunk_length = 2000)
+
+chunked_SOTU = allSOTUs %>%
+  group_by(filename, chunk) %>%
+  count(word) %>%
+  mutate(total_documents = n_groups(.))
+
+# For each word, get the total occurrences *and* the number
+# of documents it appears in.
+
+word_statistics <- chunked_SOTU %>%
+  group_by(total_documents, word) %>%
+  summarize(documents = n(), n = sum(n)) %>%
+  mutate(document_share = documents/total_documents, word_share = n/sum(n)) %>%
+  arrange(-n) %>%
+  mutate(expected_docs = (1 - (1 - 1/total_documents)^n))
+```
+
+```{r}
+library(ggrepel)
+?scales::percent
+word_statistics %>% ungroup %>% 
+  ggplot() + aes(x = n, y = document_share, label = word) +
+  geom_point(alpha = 0.2) +
+  scale_y_log10("Percent of documents", labels = scales::percent) +
+  scale_x_log10("Total Occurrences", labels = scales::comma, breaks = 10^(0:5)) + 
+  geom_line(aes(y=expected_docs), color='red', lwd=2, alpha = .33) + 
+  geom_label_repel(data = word_statistics %>% filter(word %in% c("gold", "the", "becoming", "soviet", "america", "congress", "these", "every", "iraq")), fill = "#FFFFFFAA") +
+  labs(title = "Word Frequency and document share", subtitle = "The more common a word is, the more documents it appears in...\n but some words are in just a few documents") 
+```
+
+Rather than plotting on a log scale, TF-IDF uses a statistic called the 'inverse document share.' The alteration to the plot
+above is extremely minor. First, it calculates the *inverse* of the document frequency, so that a word appearing in
+one of a hundred documents gets a score of 100, not of 0.01; and then it takes the logarithm of this number.
+
+This logarithm is an extremely useful weight. Since `log(1) == 0`, the weights for words that appear in every single document
+will be zero. That means that extremely common phrases (in this set, those much more common than 'congress') will be thrown out altogether.
+
+```{r}
+word_statistics %>%
+  mutate(IDF = log(total_documents/documents)) %>%
+  ggplot() + 
+  geom_point(aes(x = n, y = IDF)) + 
+  scale_x_log10() + labs(title="TF-IDF weights are inverse of log-scaled documents percentages")
+```
+
+
+```{r}
+tf_idf = chunked_SOTU %>% 
+  group_by(filename, chunk, word) %>% 
+  mutate(documents = n()) %>%
+  group_by(filename, chunk) %>%
+  mutate(total_documents = n_groups(.)) %>%
+  mutate(IDF = log(total_documents/documents)) %>%
+  mutate(tf = n/sum(n)) %>%
+  mutate(tf_idf = tf * IDF)
+
+tf_idf %>% 
+  filter(sum(n) > 1500) %>%
+  filter(word %in% c("iraq", "iraqis", "america", "americans")) %>% 
+  summarize(score = sum(tf_idf)) %>%
+  arrange(-score) %>% 
+  head(3) %>%
+  inner_join(allSOTUs) %>% 
+  slice(1:100) %>%
+  summarize(score = score[1], text = str_c(word, collapse=' '))# %>% pull(text)
+
+```
+
+
+This is one of the functions bundled into the module I've shared with you.
+You can run TF-IDF on any set of documents to see the distinguishing features.
+For instance, if we group by 'president,' we can see the terms that most distinguish
+each president.
+
+```{r}
+
+allSOTUs %>%
+  group_by(president) %>% # <- Define documents
+  count(word) %>%
+  summarize_tf_idf(word, n) %>% # <- calculate scores for each word/document pair
+  group_by(president) %>%
+  arrange(-tfidf) %>%
+  filter(str_detect(word, "[a-z]")) %>% # The most informative word for many presidents is a year.
+  slice(1)
+```
+
+### Pointwise mutual information
+
+TF-IDF is document for document retrieval, and occasionally used to extract distinguishing words.
+TF-IDF, though, is not a foolproof way to compare documents.
+It works well when the number of documents is relatively large 
+(at least a couple dozen, say); but what if there are just 2 classes 
+of documents that you want to compare?
+
+A metric with an intimidating name is "pointwise mutual information."
+What it means, simply, is how often an event occurs compared to how often you'd *expect* it to occur.
+We have already encountered a version of this statistic earlier: when we looked at the interactions of hair color 
+and skin color among sailors in the New Bedford Customs Office dataset.
+
+```{r}
+president_counts <- allSOTUs %>%
+  filter(year > 1981) %>%
+  group_by(president, word) %>%
+  summarize(count = n()) %>%
+  ungroup()
+```
+
+Although this is built into the package functions, it's simple enough to implement directly using functions we understand that it's worth actually looking at as code.
+
+In fact, you may often find yourself coding a version of pointwise mutual information just in the course of exploring data: 
+
+PMI looks at the overall counts of documents and words to see how frequent each are: and then it estimates an *expected* rate of usage of each word
+based on how often it appears overall. For instance, if all presidents use the pronoun "I" at a rate of 1% of all words, you'd expect Barack Obama to also use
+it at that same rate. If he uses it at 1.5% instead, you could say that it's 50% more common than expected.
+
+```{r}
+
+pmi_scores <- president_counts %>%
+  ## What's the total number of words?
+  mutate(total_words = sum(count)) %>%
+  ## What share of all words does the word have?
+  group_by(word) %>%
+  mutate(word_share = sum(count) / total_words) %>%
+  # Define our documents to be all the works of a president.
+  group_by(president) %>%
+  mutate(president_word_share = count / sum(count)) %>%
+  ## You would expect each word to occur as a percentage of the total defined
+  ## by the document and the president.
+  mutate(ratio = president_word_share / word_share)
+
+pmi_scores %>%
+  filter(word %in% c("i", "will", "make", "America", "great")) %>%
+  ggplot() +
+  geom_point(aes(y = president, x = ratio)) +
+  facet_wrap(~word) +
+  scale_x_continuous(labels = scales::percent)
+```
+
+The visual problem is that we're plotting a ratio on a linear scale on the x axis. But in reality, it often makes more sense to cast ratios 
+in terms of a logarithmic scale, just like we did with word count ratios. If something is half as common in Barack Obama's, that should be as far from "100%"
+as something that is twice as common.
+
+Usually, we'd represent this by just using a log-transformation on the x-axis; but the log-transformation is so fundamental
+in this particular case that it's actually built into the definition of pointwise mutual information. Formally, PMI is defined 
+as the *logarithm* of the ratio defined above. Since `log(1)` is zero, a negative PMI means that some combination is
+less common than you might expect, and a positive one that it's more common than you'd expect. It's up to you to decide if you're
+working in a context where calling something 'PMI' and indicating the units as bits; or if you're writing for a humanities
+audience and it make more sense to explicitly call this the 'observed-expected ratio.'
+
+If you're plotting things, though, you can split the difference by using a logarithmic scale on the observed-expected value. 
+
+You can use PMI across wordcount matrices, but it also works on anything else where you can imagine an expected share of counts.
+We already talked about the observed and expected interactions of skin color and hair color in shipping datasets.
+
+```{r}
+read_csv("../data/CrewlistCleaned.csv") -> d
+d %>%
+  count(Skin, Hair) %>%
+  filter(!is.na(Skin), !is.na(Hair)) %>%
+  complete(Skin, Hair, fill = list(n = 0)) %>%
+  add_count(Skin, wt = n, name = "skin_count") %>%
+  add_count(Hair, wt = n, name = "hair_count") %>%
+  add_count(wt = n, name = "total_count") %>%
+  mutate(expected = skin_count / total_count * hair_count / total_count * total_count) %>%
+  filter(skin_count > 100, hair_count > 100) %>%
+  mutate(ratio = ifelse(n == 0, 1, n) / expected) %>% 
+  arrange(-expected) %>%
+  ggplot() +
+  geom_tile(aes(x = Skin, y = Hair, fill = log(ratio))) + scale_fill_viridis_c() + labs(
+    title = "Interaction probabilities of skin and hair color, New Bedford crewlists",
+    subtitle = "Yellow skin is associated with 'wooly' and 'curly' hair."
+  )
+```
+
+You can also look at word counts in a specific context: for instance,
+what words appear *together* more than you'd expect given their mutual rates of occurence?
+Using the lag function, we can build a list of bigrams and create a count table of how many
+times any two words appear together. Since each of these are events we can imagine a probability
+for, we can calculate PMI scores to see what words appear *together* in State of the Union addresses.
+
+Some of these are obvious ('per cent.') But others are a little more interesting.
+
+```{r cache=TRUE}
+counts <- allSOTUs %>%
+  mutate(word2 = lead(word, 1)) %>%
+  # Count the occurrences of each bigram
+  count(word, word2) %>%
+  ungroup() %>%
+  add_count(word2, wt = n, name = "word2_n") %>%
+  add_count(word, wt = n, name = "word_n") %>%
+  add_count(wt = n, name = "total_words") %>%
+  mutate(expected = word_n / total_words * word2_n / total_words * total_words) %>%
+  filter(n > 100) %>%
+  mutate(ratio = n / expected, pmi = log(ratio)) %>%
+  arrange(-ratio)
+
+counts %>% select(word, word2, pmi) %>% head(10)
+```
+
+
+
+
+### Dunning Log-Likelihood.
+
+While this kind of metric seems to work well for common words, it starts to break down when you get into
+rarer areas. If you sort by negative PMI on the president-wordcount matrix (try this on your own to see what it looks like),
+all the highest scores are for words used only by the
+president who spoke the fewest words in the corpus.
+
+These kinds of errors--low-frequency words showing up everywhere on a list--are often a sign that you need to think *statistically*.
+
+One useful comparison metric for wordcounts (and anyother count information) is a test known as Dunning log-likelihood. It expresses
+not just a descriptive statement about relative rates of a word, but a statistical statement about the chances that so big a gap 
+might occur *randomly.*
+
+I won't explain the exact mechanisms here, but you can see a tidyverse implementation of the code in the
+`commonFunctions.R` file.
+
+```{r}
+
+library(TEIdytext)
+
+dunning_scores <- allSOTUs %>%
+  group_by(president) %>%
+  filter(year > 1981) %>%
+  summarize_llr(word)
+
+dunning_scores %>%
+  group_by(president) %>%
+  arrange(-dunning_llr) %>%
+  slice(1:15) %>%
+  ggplot() +
+  geom_bar(aes(x = reorder(word, dunning_llr), y = dunning_llr), stat = "identity") +
+  coord_flip() +
+  facet_wrap(~president, scales = "free_y") + 
+  labs("The statistically most distinctive words in each modern president's state of the Union addresses.")
+```
+
+These are not prohibitive problems; especially if you find some way to eliminate uncommon words. One
+way to do this, of course, is simply to eliminate words below a certain threshold. But
+there are more interesting ways. Just as we've been talking about how the definition of 'document'
+is flexible, the definition of "word" can be too. You could use stemming or one of the approaches discussed in the "Bag of Words"
+chapter. Or you can use merges to count something different than words.
+
+For example, we can look at PMI across not words but **sentiments**. 
+In this case, both the PMI and Dunning scores give comparable results. 
+Here I calculate scores separately, and then use a `gather` operation to pull them together.
+
+(Note that there's one new function here: **`scale`** is a function that brings multiple 
+variables into a comparable scale--standard deviations from the mean--so that you can compare them.
+You'll sometimes see references to 'z-score' in social science literature. That's what 
+scale does here.
+
+
+```{r}
+pmi_matrix <- allSOTUs %>%
+  filter(year > 1934) %>%
+  filter(word != "applause") %>%
+  filter(word != "congress") %>%
+  inner_join(tidytext::sentiments %>% filter(lexicon == "nrc")) %>%
+  group_by(president) %>%
+  summarize_pmi(sentiment) %>%
+  select(president, sentiment, pmi)
+
+dunning_matrix <- allSOTUs %>%
+  filter(year > 1934) %>%
+  filter(word != "applause") %>%
+  filter(word != "congress") %>%
+  inner_join(tidytext::sentiments %>% filter(lexicon == "nrc")) %>%
+  group_by(president, sentiment) %>%
+  summarize(count = n()) %>%
+  group_by(president) %>%
+  summarize_llr(sentiment, count) %>%
+  select(president, sentiment, dunning_llr)
+  
+pmi_matrix %>% inner_join(dunning_matrix) %>%
+  gather(metric, value, pmi, dunning_llr) %>%
+  group_by(metric) %>%
+  mutate(scaled = scale(value)) %>%
+  ggplot() + 
+  geom_tile(aes(x = president, y = sentiment, fill = scaled)) + 
+  scale_fill_viridis_c() + 
+  coord_flip() + 
+  facet_wrap(~metric, ncol=1) + 
+  labs("")
+```
+
+The reason to use Dunning scores is that they offer a test of statistical significance; if you or your readers are worried about
+mistaking a random variation for a significance one, you should be sure to run them. Conversely, the reason to use
+PMI rather than log-likelihood is that it is actually a metric of *magnitude*, which is often closer to the phenomenon actually being described;
+especially if you use the actual observed/expected counts, rather that the log transformation.
+
+
+# Classification
+
+To *classify* texts, let's start by looking at one of the simplest classification metrics: logistic regression.
+
+We'll work here with the same dataset that Mosteller and Wallace use in their initial authorship attribution study.
+The file here is an XML document that Matthew Jockers and Daniela Witten created for their 2010 article about
+authorship attribution; since it is XML, we can use the TEIdy package to read it in and lift the author and 
+title information to each document.
+
+```{r}
+
+# Maybe run: devtools::install_github("bmschmidt/TEIdytext")
+library(TEIdytext)
+library(tidytext)
+
+fedWords <- TEIdy("../data/federalist.papers.xml") %>%
+  # The 'div' is the basic document level here.
+  group_by(div) %>%
+  # Any filled-in author fields apply to the whole div.
+  lift_data(author) %>%
+  lift_data(title) %>%
+  # Eliminate things like 'author' and 'title' that occur
+  # outside of 'text' tags.
+  filter(text > 0) %>%
+  # Change our document abstraction to be 'title'
+  group_by(title) %>%
+  select(author, title, .text) %>%
+  unnest_tokens(word, .text)
+```
+
+How often does each author use each word, as a share of all words he uses?
+
+```{r}
+
+function_words <- tibble(word = c(
+  "a", "do", "is", "or", "this", "all", "down",
+  "it", "our", "to", "also", "even", "its", "shall",
+  "up", "an", "every", "may", "should", "upon", "and",
+  "for", "more", "so", "was", "any", "from", "must",
+  "some", "were", "are", "had", "my", "such", "what",
+  "as", "has", "no", "than", "when", "at", "have",
+  "not", "that", "which", "be", "her", "now", "the",
+  "who", "been", "his", "of", "their", "will", "but",
+  "if", "on", "then", "with", "by", "in", "one", "there",
+  "would", "can", "into", "only", "things", "your"
+))
+
+authorProbs <- fedWords %>%
+  inner_join(function_words) %>%
+  # For this abstraction, the document is the *author*.
+  group_by(author) %>%
+  count(word) %>%
+  mutate(probability = n / sum(n))
+
+```
+
+## Naive Bayes
+
+(Incomplete: this is theoretically interesting to think about, but not widely used in practice.)
+
+That new matrix gives us the chance of each author using any individual word. We just need to merge that in, and we can gather the overall probability for any author using the *individual* words that he or she does. For example, here are the probabilities of each author in our set using the word 'upon'. If you take a random word, it's very unlikely that it will be 'upon' for any of them; but it's a lot *less* unlikely that it's Hamilton than that it's Jay or Madison.
+
+Naive Bayesian classifiers by just repeating this over and over again by multiplying possibilities. 
+
+Multiplying numbers lots of times is hard for computers to track, but this is another case where logarithms are helpful. 
+Maybe you remember from high school math that logarithms let you use addition instead of multiplication. This means that instead of multiplying
+a string of numbers together, we can simply take the *average* of their logarithms to see how unlikely the average word is. (We need logarithms
+for this to be rigorous probability; averaging the percentages is not a good measure.)
+
+## Linear regression.
+
+IN PROGRESS
+
+## K-nearest-neighbor
+
+
+## Logistic Regression
+
+Logistic regression has become the overwhelmingly popular way of 
+performing classifications in the digital humanities, perhaps because it does not generally rely on
+refined statistical assumptions about distributions.
+
+We'll explore it first through the authorship problem in the *Federalist* papers.
+
+First we'll create a term document matrix. 
+
+```{r logisticRegressionFederalist}
+
+fedMatrix = fedWords %>%
+  inner_join(function_words) %>%
+  group_by(author, title) %>% count(word) %>%
+  spread(word, n, fill = 0) %>% ungroup
+
+known = fedMatrix %>% filter(author %in% c("HAMILTON", "MADISON"))
+
+unknown = fedMatrix %>% filter(author == "DISPUTED")
+
+```
+
+Then we run the model. In R, logistic regression 
+is contained inside the `glm` function, which allows you run many
+different types of models.
+
+This returns a `model` object, which is quite different
+than the tidy data we've been working with, and more like 
+the PCA models we saw before.
+
+You can inspect the output of a model
+by calling the 'summary' function. 
+The most important statistics here are the 
+coefficients table; here you can read
+codes that tell you if the model is finding statistically
+significant patterns. The general standard for significance
+is a 95% chance that the result isn't random, represented by a p value under 0.05. Here, the best
+score we get is 0.09; you could call that 'weakly significant', but fortunately this kind
+of equivocation is getting pushed out of the social sciences and has never become widespread in
+the humanities.
+
+```{r}
+model = glm(author == "HAMILTON" ~ on + upon, data = known, family = "binomial")
+model %>% summary
+```
+
+More relevant is how *powerful* these features are. We can use the model to create a new row of *predictions* on the combination.
+
+You may have heard that computers think in binary categories and humans think in subtle shades. With authorship,
+as with much else, the truth is precisely the opposite: while we can know that a particular paper is by Hamilton,
+a logistic model will only ever put out a *probability.*
+
+These predictions are, yet again, a form of log transformation. They are, though, a special type of transformation
+known as the 'log odds,' which can be converted to a probability using the so-called 'logistic function.' 
+They are 'odds' in the betting sense; the log-odds treat a bet like "3 to 1 odds" as a fraction and take the logarithm of it.
+
+The raw output of a logistic regression are numbers of any size: a '0' indicates
+that the model predicts an even chance of the label belonging to either class: as the numbers grow larger they 
+asymptotically approach certainty that
+it belongs to the class used to train the model, and lower and lower negative numbers indicate progressively higher chances 
+that the label does not apply. 
+
+You might say, for instance, that something has a "million-to-one odds"" of happening; since the natural log of one million is 13.8,
+that would be expressed as a chance of -13.8. Odds of 95 to 5--that traditional significance interval--are about -2.94; anything in between 
+-2.94 and 2.94 is an uncertain guess.
+
+The chart below shows the predictions of our logistic model in both
+of these dimensions: normally you'd likely only look at the log odds, because using
+probabilities tends to cluster things too tightly. 
+
+As you can see, our little model seems to be doing a pretty good job: most of the Hamilton
+has a high probability of being Hamilton-written, and most of the Madison is on the left.
+
+```{r}
+predictions = fedMatrix %>% 
+  mutate(number = title %>% str_extract("[0-9]+") %>% as.numeric) %>%
+  mutate(.prediction = predict(model, newdata = .)) %>%
+  select(author, number, .prediction)
+
+predictions %>%
+  ggplot() + 
+  geom_point(aes(y = .prediction, x=plogis(.prediction), color=author, pch=author), size=3) + 
+  labs()
+```
+
+This looks great! But actually, this provides too much certainty, because we're committing the
+cardinal sin of data analysis: mixing our test and training data. It's not right to evaluate the performance
+of a model on the same data we trained it on; the model can easily be *overfitted*.
+
+The right way to handle this is to break into *test* and *training* sets.
+
+```{r}
+set.seed(10)
+test = known %>% sample_frac(.25)
+train = known %>% anti_join(test, by = c("title"))
+
+model = glm(author == "HAMILTON" ~ on + upon, data = train, family = "binomial")
+predictions = test %>%
+  mutate(.prediction = predict(model, newdata = .)) %>%
+  select(author, title, .prediction)
+
+predictions %>%
+  ggplot() + 
+  geom_point(aes(y = .prediction, x=plogis(.prediction), color=author, pch=author), size=3)
+```
+
+Thinking about errors requires more than just blindly sampling, though.
+
+Consider predicting the party of an American president based on their stopword usage.
+We'll run a classification of whether a president is a "Democrat" or not, allowing all
+the other various parties to blend together.
+
+```{r}
+president_mat = allSOTUs %>% 
+  group_by(word) %>% 
+  filter(n() > 10000) %>% 
+  group_by(year, president, party) %>%
+  count(word) %>%
+  mutate(share = n/sum(n)) %>%
+  select(-n) %>%
+  spread(word, share) %>%
+  ungroup
+
+test = president_mat %>% sample_frac(.25)
+train = president_mat %>% anti_join(test, by = 'year')
+
+model = glm(party == "Democratic" ~ . , data = train %>% select(-president, -year), family = "binomial")
+
+test_fit = test %>% mutate(predicted = predict(model, newdata = .))
+
+test_fit %>%
+  mutate(prediction = ifelse(predicted < 0, "Democratic", "Republican")) %>%
+  mutate(correct = prediction == party) %>%
+  count(correct) %>% mutate(
+    rate = n/sum(n)
+  )
+```
+
+You might be tempted to think that this is a remarkable finding! 75 percent of the time, we can predict whether or not a
+person is a Republican or Democrat simply from the pronouns that they use.
+
+But this is a misleading sample. Although we are technically predicting party, we have still allowed our test and training
+data to become conmingled in a way, because we have multiple examples from each *president.* 
+
+```{r}
+
+test_presidents = president_mat %>% distinct(president) %>% sample_frac(.25)
+
+test = president_mat %>% inner_join(test_presidents)
+train = president_mat %>% anti_join(test_presidents)
+
+model = glm(party == "Democratic" ~ . , data = train %>% select(-president, -year), family = "binomial")
+
+test_fit = test %>% mutate(predicted = predict(model, newdata = .))
+
+test_fit %>%
+  mutate(prediction = ifelse(predicted < 0, "Democratic", "Republican")) %>%
+  mutate(correct = prediction == party) %>%
+  count(correct) %>% mutate(
+    rate = n/sum(n)
+  )
+
+```
+
+Problems of authorship attribution in the digital humanities have developed a much more robust statistical literature
+to deal with these kinds of problems, because they frequently have to work with extremely small samples like those here.
+To learn more about this specialized area of discourse.
+
+But in non-authorship questions, digital humanists have been comparatively more relaxed. Rather than worry
+too much about the mathematics of statistical distributions, they have looked for problems where the data is large
+enough that we can use logistic regression with adequate controls
+
+
+Avoiding overfitting is a conceptual problem as much as a statistical one. Let's take as an example predicting the 
+party of a state of the Union address.
+
+```{r}
+allSOTUs
+
+```
+Consider predicting party.
+
+
+## Exercises
+
+1. Choose a different set of documents and compare them along some metadata facet by PMI, Dunning Log-Likelihood, and (if applicable) TF-IDF. Plot the results in some way, separately or together.
+
+```{r problem1, run = FALSE}
+
+```
+
+2. Build a search engine! Using the example of 'iraqis' above, run some searches. Then generalize that into a function that you could save in a separate file and source. Make sure that the file includes both the function search *and* a definition of the dataset.
+
+```{r problem2, run = FALSE}
+
+dataset = NULL # <- fill this in
+
+search = function(word) {
+  
+  # At the end, return the text of the three closest documents as in the SOTU search above.
+}
+
+```
+
+2a. (Highly skippable: Conceptually complicated, but practically quite easy). This takes you higher into the land of 
+programming, should that be your inclination. We've worked entirely with functions that return data of various types: but
+functions *themselves* are data in computer programming language. So you can build a function that returns another function.
+This is called a "factory" function. Using your answer from 2, build one that returns a search function, like above, that you can use to 
+search using TF-IDF where the dataset (as a grouped tibble) is one of the parameters to the function.
+
+```{r}
+
+search_engine = function(grouped_document_frame) {
+  # At the end, return a function like the 'search' above keyed to the particular frame.
+}
+
+```
+
+3. (Complicated, multistep.)
+
+Build a logistic classifier to predict the class of a book based on its synopsis. You can use "Juvenile literature," or find another frequent 
+category.
+
+Calculate the classifiers accuracy (the percentage of predictions that are correct).
+Look at the highest-likelihood misclassifications in both directions to see why it might be getting it wrong.
+
+```{r, run = FALSE}
+titles = read_csv("../data/summaries.csv.gz") %>%
+  mutate(.juvenile = str_detect("Juvenile literature"))
+
+# Turn titles into a term document matrix with just the class.
+tdMatrix = titles %>% select(.juvenile, .lccn = lccn, summary) %>%
+  unnest_tokens(word = summary)
+  #etc: fill it out from here using spread, filter, etc. Make sure to limit the 
+  # population of words before you run "spread."
+
+
+# Split into test and training data using the lccns. This will keep you honest. (Is it an unfair split.)
+# The particular function here: `%%` tests if the number is divisible by nine. This means one in nine books 
+# will be in the test set.
+
+train = tdMatrix %>% filter(lccn %% 9 != 0)
+test = tdMatrix %>% filter(lccn %% 9 == 0)
+
+model = glm(.juvenile ~ ., data = train %>% select(-.lccn))
+
+## Finally, train the model.
+```
+
+4. Re-using your code from 3 as much as possible, train some other classificatory model. It can use textual features or something else.

@@ -1,0 +1,284 @@
+---
+title: 'Week 10: Clustering and Modeling'
+author: "Ben Schmidt"
+date: "4/2/2015"
+output: pdf_document
+---
+
+
+```{r global_options, include=FALSE}
+library(tidyverse)
+```
+
+Last week we looked at **supervised learning and comparison**: techniques that use *known* metadata to compare groups.
+
+This is called "supervised" because it ensures that algorithmic methods.
+
+This week, the techniques we'll discuss are what it known as **unsupervised learning**; for inferring 
+patterns out of data where you *don't* necessarily have data.
+
+
+
+# Clustering
+
+Clustering means putting sets into groups.
+
+We're going to talk about using a very large number of dimensions--the words in a document. But you can do it on a comparatively smaller number of features, as well. The simplest case is clustering on a single dimension. Let's go back to our list of cities as an example.
+
+```{r}
+cities <- read_csv("../data/CESTACityData.csv")
+
+
+
+```
+
+How would you group these points together?
+
+Hierarchical clustering uses something called a *dendrogram* to do this. It finds the two closest points, and joins them together, pretending they're a single point ^[This is a simplification--in fact, there are a number of different ways to treat the amalgamated clusters. ]; then finds the next two closest points, and joins *them* together; and keeps on going until there's a single group, encompassing everything.
+
+```{r fig.height=9, fig.width=7}
+library(ggdendro)
+cities %>%
+  column_to_rownames("CityST") %>%
+  select(LON, LAT) %>% 
+  dist %>%
+  hclust %>%
+  dendro_data -> 
+  dendrogram
+
+dendrogram %>%
+  segment %>% ggplot() + 
+  geom_segment(aes(xend = xend, yend = yend)) + 
+  aes(x = x, y = y) + 
+  coord_flip() + 
+  scale_y_reverse(expand = c(0.2, 0)) + 
+  geom_text(data = dendrogram$labels, aes(label = label), adj=0)
+
+```
+
+A *two-dimensional* clustering could use latitude *and* longitude. 
+
+```{r}
+library(ggdendro)
+cities %>%
+  column_to_rownames("CityST") %>%
+  select(LON, LAT) %>% 
+  dist %>%
+  hclust %>%
+  dendro_data -> 
+  dendrogram
+
+dendrogram %>%
+  segment %>% ggplot() + 
+  geom_segment(aes(xend = xend, yend = yend)) + 
+  aes(x = x, y = y) + 
+  coord_flip() + 
+  scale_y_reverse(expand = c(0.2, 0)) + 
+  geom_text(data = dendrogram$labels, aes(label = label), adj=0)
+
+
+```
+
+But you could also do a three-dimensional clustering, that relates both location and population change.
+
+The scales will be very different on these, so you can use the R function `scale` to make them all follow the same distribution. (Try fiddling around with some numbers to see what it does, or just put in `?scale`.)
+
+That starts to cluster cities together based on things like both location and demographic characteristics: for instance, New Orleans ends up connected to the Rust Belt because it, too, experienced population decreases.
+
+
+```{r}
+
+distances <- dist(cities %>%
+  mutate(LON = scale(LON), LAT = scale(LAT), change = scale(log(`2010` / `2000`))) %>%
+  select(LAT, LON, change))
+
+cities %>%
+  mutate(LON = scale(LON), LAT = scale(LAT), change = scale(log(`2010` / `2000`))) %>%
+  column_to_rownames("CityST") %>%
+  select(LON, LAT, change) %>%
+  dist %>%
+  hclust %>%
+  dendro_data -> 
+  dendrogram
+
+dendrogram %>%
+  segment %>% 
+  ggplot() + 
+  geom_segment(aes(xend = xend, yend = yend)) + 
+  aes(x = x, y = y) + 
+  coord_flip() + 
+  scale_y_reverse(expand = c(0.2, 0)) + 
+  geom_text(data = dendrogram$labels, aes(label = label), adj=0, size=2)
+
+```
+
+You know what to use as a spatialized version of text: some document vectorization.
+Let's look at State of the Unions
+
+```{r SOTU-dendrogram fig.height=6, cache = TRUE}
+source("../R/commonFunctions.R")
+
+sotu = read_all_SOTUs()
+
+sotu %>% 
+  filter(year > 1960) %>% 
+  group_by(year, filename, president) %>% 
+  summarize_tf_idf(word) -> tf
+
+tf %>% 
+  group_by(word) %>% 
+  summarize(tot = sum(tfidf)) %>% 
+  arrange(-tot) %>% slice(1:100) %>%
+  inner_join(tf) %>%
+  select(year, president, word, tfidf) %>%
+  mutate(id = paste(president, year)) %>%
+  spread(word, tfidf, fill = 0) -> words
+
+words %>%
+  column_to_rownames("id") %>%
+  dist %>%
+  hclust %>%
+  dendro_data -> dendrogram
+  
+dendrogram %>%
+  segment %>% 
+  ggplot() + 
+  geom_segment(aes(xend = xend, yend = yend)) + 
+  aes(x = x, y = y) + 
+  coord_flip() + 
+  scale_y_reverse(expand = c(0.2, 0)) + 
+  geom_text(data = dendrogram$labels, aes(label = label), adj=0, size=3)
+
+```
+
+
+To make a dendrogram, we once again take the distances and plot a hierarchical clustering.
+
+By making the labels be the authors, we can see whether the clusters are grouping similar people together.
+
+## K-means clustering
+
+Sometimes, it makes sense to choose a fixed number of clusters. Hierarchical clustering *can* provide this, but cutting the tree at any particular height. But an especially widely used form of find the best group of 5 (or 10, or whatever) is k-means clustering.  A nice example video is online [here](http://tech.nitoyon.com/en/blog/2013/11/07/k-means/).
+
+Let's go back to our data to see how kmeans handles the cities.
+
+```{r}
+
+cities %>% select(LAT, LON) %>%
+  kmeans(centers = 6) ->
+  city_clusters
+
+city_clusters %>% broom::augment(cities) %>%
+  inner_join(tidy(city_clusters), by = c(".cluster"="cluster")) ->
+  cities_with_clusters
+
+ggplot(cities_with_clusters) + 
+  aes(x = LON, y = LAT, color = .cluster) + 
+  geom_point(size = 1) + 
+  borders(database = "state") +
+  coord_quickmap() + 
+  geom_point(aes(y=x1, x = x2), size = 4) + 
+  geom_segment(aes(xend = x2, yend = x1)) + xlim(-130, -60) + 
+  theme_minimal() + 
+  labs(title="Kmeans cluster centers")
+
+```
+
+You can use this clustering to pull out similar groups of words in a word2vec model, as well.
+
+```{r}
+library(wordVectors)
+read.binary.vectors("../data/")
+
+```
+
+# Topic Modeling
+
+Clustering and Modeling
+
+To do topic modelling at home, you can use a variety of packages. I've lately started to try the "STM"--or structural topic models--package, which is supposed to work better with metadata than the LDA variety that David Blei invented and has been used widely in the Digital Humanities.
+
+## Topic Models at the paragraph level.
+
+Topic modeling is an algorithm that works best with a lot of words and a lot of documents. Just 20 chapters will probably *not* produce an information array of topics; so instead
+we'll divide the text up into a paragraphs.
+
+
+
+```{r}
+# devtools::install_github("agoldst/dfrtopics"); devtools::install_github("mimno/RMallet", subdir="mallet")
+
+library(stm)
+
+# Divide by paragraph. I use "\r\n\r\n" to split into paragraphs, but the particular way a carriage return shows up in your text is for you 
+# to figure out.
+
+sotu %>% 
+  group_by(president, party, year, paragraph) %>%
+  count(word) %>% 
+  add_chunks(n, 250) %>%
+  group_by(president, party, year, chunk) %>%
+  count(word, wt=n) -> chunks
+
+chunks %>%
+  filter(year > 1976) %>%
+  group_by(word) %>%
+  filter(n() > 4) %>%
+  anti_join(stop_words) %>%
+  # Cast_dfm makes a sparse matrix that can be 
+  # fed into a topic model.
+  mutate(doc = paste(year, chunk)) %>%
+  cast_dfm(doc, word, n) %>%
+  # NOTE--> Set 'verbose == TRUE' if you want to see the topics as it runs.
+  stm(K = 50, init.type = "Spectral", verbose = TRUE, seed = 1) ->
+  model
+```
+
+A topic model has two parts to look at: a 'beta' matrix that gives the probabilities of any word being in any given topic;
+and a 'gamma' matrix that gives how much of each document is made up of each topic. You can simply inspect the beta topics
+to see what kinds of words appear together; or you can look at the gamma distributions to see how docs are spread across topics.
+
+```{r}
+word_probabilities = model %>%
+  tidy(matrix="beta") %>%
+  group_by(topic) %>% 
+  arrange(-beta)
+
+topic_labels = word_probabilities %>%
+  slice(1:6) %>%
+  summarize(label = paste(term, collapse = " "))
+
+document_probs = model %>% tidy(matrix = "gamma")
+```
+
+Here are 25 topics sampled from the whole.
+
+```{r}
+set.seed(3)
+topic_labels %>% inner_join(document_probs) %>% group_by(label) %>% summarize(prevalence = mean(gamma)) %>%
+  arrange(-prevalence) %>% sample_n(25) %>% ggplot() + geom_bar(aes(x=reorder(label, prevalence), y = prevalence), stat = "identity") + coord_flip() +
+  labs(title = "25 random topics in post-1980\nState of the Unions")
+
+```
+
+```{r}
+labelled_speeches = chunks %>%
+  filter(year > 1980) %>% group_by(president, party, year, chunk) %>%
+  summarize(length = sum(n)) %>% ungroup %>%
+  mutate(document = 1:n()) %>%
+  inner_join(document_probs) %>%
+  inner_join(topic_labels)
+
+labelled_speeches %>%
+  group_by(president, label) %>% 
+  summarize(share = mean(gamma)) %>%
+  ggplot() + geom_tile(aes(x=president, y = label, fill = share)) + scale_fill_viridis_c()
+
+labelled_speeches %>%
+  group_by(year, label) %>% 
+  summarize(share = mean(gamma)) %>%
+  ungroup %>% 
+  filter(label %in% sample(unique(label), 8)) %>%
+  ggplot() + geom_line(aes(x=year, y = share)) + facet_wrap(~label, ncol=2) + labs(title="Time Prevalence of 10 random topics")
+
+```

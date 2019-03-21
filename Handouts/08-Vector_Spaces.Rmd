@@ -13,7 +13,7 @@ library(tidyverse)
 
 if (!require(wordVectors)) {devtools::install_github("bmschmidt/wordVectors")}
 
-model = read.vectors("~/Dropbox/RMP.bin")
+model = read.vectors("~/Dropbox/Workshops/word_vectors/demo_vectors/RMP.bin")
 ```
 
 
@@ -31,7 +31,7 @@ source("https://raw.githubusercontent.com/bmschmidt/wordVectors/master/R/matrixF
 The most basic thing that you can do in a vector model is to look at an individual vector. So we'll try it: but this is basically pointless.
 
 ```{r}
-model[[c("science"), average=FALSE]]
+model[[list("science")]]
 ```
 
 Nearly as basic, but more useful, is finding words that are used in a similar *context*.
@@ -66,7 +66,7 @@ plot the portions of the full model that
 
 ```{r}
 unprofessional_words = model %>% closest_to(~"unproffesional" + "incosiderate" + "degrating" + "disrespectfull" + "beligerant", n=50) %>% pull(word)
-model[[unprofessional_words, average=F]] %>% 
+model[[as.list(unprofessional_words)]] %>% 
   plot(method="pca")
 ```
 
@@ -75,7 +75,7 @@ We can use these plots to look at the local structure of any slice that we like.
 
 ```{r}
 unprofessional_words = model %>% closest_to(~"terrible", n=50) %>% pull(word)
-model[[unprofessional_words, average=F]] %>% 
+model[[as.list(unprofessional_words)]] %>% 
   plot(method="pca")
 ```
 
@@ -87,7 +87,7 @@ OK: here's where humanities and science vector models really start to differ. I 
 Let's first look at the words near to "history" in 
 ```{r}
 history_words = model %>% closest_to(~"history", n=50) %>% pull(word)
-model[[history_words, average=F]] %>% 
+model %>% extract_vectors(history_words) %>% 
   plot(method="pca")
 ```
 
@@ -98,17 +98,17 @@ We can load in a new model, and run *almost* the same code; note that here I cha
 I'm going to use "glove", which is a general-purpose model.
 
 ```{r}
-model2 = read.vectors("glove.bin")
+model2 = read.vectors("~/Dropbox/Workshops/word_vectors/demo_vectors/glove.bin")
 history_words = model2 %>% closest_to(~"history", n=50) %>% pull(word)
-model2[[history_words, average=F]] %>% 
+model2[[history_words %>% as.list]] %>% 
   plot(method="pca")
 ```
 
 But remember those similarity scores? We can actually compare these two models directly. I have to pass a few more arguments to the functions here to get cleanly formatted outputs.
 
 ```{r}
-all_history = model %>% closest_to(~ "history",n=Inf, fancy_names=F)
-all_history_model2 = model2 %>% closest_to(~ "history", n = Inf,fancy_names=F)
+all_history = model %>% closest_to(~ "history",n=Inf)
+all_history_model2 = model2 %>% closest_to(~ "history", n = Inf)
 
 all_history %>% 
   inner_join(all_history_model2, by=c("word")) %>% # Merge them together
@@ -125,7 +125,7 @@ all_history %>%
 ```{r}
 model = read.vectors("RMP.bin")
 
-model %>% closest_to(~"dude" - "man" + "woman")
+model %>% closest_to(~"king" - "man")
 
 ```
 
@@ -134,8 +134,8 @@ model %>% closest_to(~"dude" - "man" + "woman")
 gender = model[["man"]] - model[["woman"]]
 quality = model[["good"]]  - model[["bad"]]
 
-list1 = model %>% closest_to(gender, n=Inf, fancy_names=F)
-list2 = model %>% closest_to(quality, n=Inf, fancy_names=F)
+list1 = model %>% closest_to(gender, n=Inf)
+list2 = model %>% closest_to(quality, n=In)
 
 list1 %>% inner_join(list2,by="word") %>%
   arrange(-(similarity.x^2 + similarity.y^2)) %>%

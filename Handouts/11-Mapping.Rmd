@@ -1,0 +1,85 @@
+---
+title: "11 Geocomputation"
+author: "Ben Schmidt"
+date: "March 28, 2019"
+output: html_document
+---
+
+You may have looked in other classes at geodata in a framework like QGIS.
+
+In R, you can deal with geodata directly by reading it in using the `sf` package.
+
+(There are other, older ways to read in data; I do not recommend them.)
+
+```{r setup, include=FALSE}
+library(maps)
+library(tidyverse)
+library(sf)
+library(leaflet)
+# install.packages("sf")
+```
+An SF object is basically a data frame with a special `geometry` field that indicates what something's shape is, and some additional data about projections.
+
+There are two different ways to make an sf object. One is to just read in any shapefile, geojson, or other object.
+
+```{r}
+states <- st_read("../data/maps/cb_2017_us_state_5m.shp")
+states
+```
+
+Another is to *convert* an existing object by telling where the latitude and longitude fields are. 
+
+We can do this with our city data from earlier in the semester.
+
+```{r}
+cities <- read_csv("../data/CESTACityData.csv") %>% filter(!is.na(LAT)) %>% st_as_sf(coords = c("LON", "LAT"), crs = 4326)
+```
+
+```{r}
+cities %>%
+  st_crop()
+filter(LAT > 10)
+sample_n(100)
+library(leaflet)
+
+ne <- c("ME", "MA", "VT", "RI", "CT", "NH")
+ne_top_pops <- cities %>%
+  filter(ST %in% ne) %>%
+  gather(year, pop, `1790`:`2010`) %>%
+  group_by(CityST) %>%
+  arrange(-pop) %>%
+  slice(1) %>%
+  mutate(year = as.numeric(year))
+```
+
+To build a map, you just composite layers in ggplot. Choose attractive colors and sensible geometries.
+
+```{r}
+
+# %>% st_transform(crs=5070)
+
+ggplot(ne_top_pops) +
+  geom_sf(data=states, fill='beige', lwd=0) + 
+  geom_sf(data = states %>% filter(STUSPS %in% ne)) + 
+  geom_sf(aes(color = `year`, size = `pop`)) +
+  theme_void() +
+  coord_sf(xlim = c(-79, -67), ylim = c(40, 48)) +
+  scale_color_viridis_c() + 
+  theme(panel.background = element_rect(fill = "aliceblue"))
+
+```
+
+
+```{r cars}
+leaflet(ne_top_pops) %>% addCircleMarkers(color = ~year, radius = ~ .03 * sqrt(pop)) %>% addTiles()
+```
+
+```{r}
+
+```
+
+```{r pressure}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

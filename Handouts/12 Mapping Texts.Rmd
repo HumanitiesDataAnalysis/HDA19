@@ -1,0 +1,77 @@
+---
+title: "12. Mapping Texts"
+output: html_notebook
+---
+
+Let's look a bit about merging geocomputation with regular computation.
+
+```{r}
+
+library(maps)
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+
+source("../R/commonFunctions.R")
+```
+
+First we load in a map of the world...
+
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+```
+
+```{r}
+readfile <- function(filename, ...) {
+  read_lines(filename) %>%
+    tibble(text = .) %>%
+    filter(text != "") %>%
+    # Add a counter for the paragraph number
+    mutate(paragraph = 1:n()) %>%
+    unnest_tokens(word, text, ...) %>%
+    mutate(filename = filename %>%
+      str_replace(".*/", "") %>%
+      str_replace(".txt", ""))
+}
+
+read_all_SOTUs <- function(...) {
+  raw <- list.files("../data/SOTUS/", full.names = TRUE) %>%
+    map_dfr(readfile, ...) %>%
+    mutate(year = as.numeric(filename))
+
+  meta <- read_csv("../data/SOTUmetadata.csv") %>%
+    distinct(year, president, party, sotu_type)
+  inner_join(raw, meta)
+}
+```
+
+```{r}
+
+SOTUS <- c(1, 2, 3, 4) %>% map_dfr(~ read_all_SOTUs(to_lower = FALSE, token = "ngrams", n = .x))
+```
+
+
+```{r}
+
+top_countries <- SOTUS %>% inner_join(world %>% select(admin), by = c("word" = "admin")) %>% count(word) %>% arrange(-n)
+
+top_countries %>% head(15) %>% ggplot() + geom_bar(aes(x = word, y = n), stat = "identity") + coord_flip()
+```
+
+Let's talk a little bit, at the end, about proper labels and attributions and themes.
+
+GGplot has a set of functions called 'themes' that define appearance. Grey backgrounds make little sense on a map, so we'll use **`theme_minimal`**. 
+
+
+
+```{r}
+
+world %>%
+  inner_join(top_countries, by = c("admin" = "word")) %>%
+  ggplot() + 
+  geom_sf(data=world, fill='beige') + 
+  geom_sf(aes(fill = n), expand = F) + 
+  scale_fill_viridis_c(trans = "log") + coord_sf(crs = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs") + theme_minimal() + labs(title="The countries presidents talk about", subtitle = "Colorized by number of mentions in State of the Union addresses", caption="Source: UCSB Presidency Project (SOTU text), Natural Earth (continent shapes)") + 
+    theme(panel.background = element_rect(fill = "aliceblue"))
+
+```

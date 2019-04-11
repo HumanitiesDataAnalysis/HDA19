@@ -1,0 +1,154 @@
+---
+title: 'Week 13-Applications'
+author: "Ben Schmidt"
+date: "4/2/2015"
+output: pdf_document
+---
+
+```{r global_options, include=FALSE}
+library(tidyverse)
+```
+
+
+The point of humanities computing is not to to redo exactly the same analyses others have done, again and again, on new corpora: it's to fit the pieces of computational reading together in new ways.
+
+So for the last week, let's just review some of the ways this can work. 
+
+
+We'll do this with one type of model-- a topic model.
+
+## "Understanding" topic modeling.
+
+What does it mean to understand a model? There's a lot of confusion out in the world today about "algorithms," the processes that can create models; understanding and interpreting algorithms is
+the core task of computer science.
+
+You are probably not a computer scientist; it's not your job to understand algorithms. What you need to know how to do, instead, is understand the *transformations* that algorithms try to instantiate.
+
+To do topic modeling responsibly, you don't need to understand the interiors of the algorithm; but you need to understand, completely, what the output of a model is.
+
+Before we look at topic models, let's consider a much simpler example we've been looking at since
+the first week of this class: sorting.
+
+Suppose we take our State of the Unions one last time, count the words, and arrange in decreasing order.
+
+```{r}
+source("../R/commonFunctions.R")
+
+sotus = read_all_SOTUs()
+
+sotus %>% filter(str_length(word) > 10) %>%
+  count(word, president) %>% 
+  arrange(-n)
+```
+
+There are 25,000 rows in this dataframe, and they have just, nearly instantaneously, been reshuffled into descending frequency. Have you thought about how that sort actually happens? That is--do you know how `dplyr` sorts a list?
+
+Perhaps you can think of a few ways. You could compare the first element to the second one, and switch them if the top one is smaller than the bottom one: and then do the same to the second and third items--and so forth. You could find the median counts, split the set into counts greater and less than that, and then sort each list individually. If you've taken an introductory computer science course, you may even know some names for these operations, like "merge sort" or "radix sort."
+
+So which way does dplyr work? I have no intention of ever learning; this is one of the sharp lines between the digital humanities and applied computer science. What matters is not the algorithm--quicksort, radix, or the rest--but the **transformation** entailed. You know how to work with a sorted list; it lets you look at extremes. "Sortedness" is the transformation, not the algorithm; that's the thing to worry about.
+
+
+## Topic Modeling
+
+Sortedness is a concept that was used extremely early in humanities computing for tasks, like
+concordance creation, that already existed.
+
+Topic modeling, on the other hand, is much more complicated to describe. But it is a *data* transformation just like sorting, so one way to think about it is as 
+
+To do topic modelling at home, you can use a variety of packages. I've lately started to try the "STM"--or structural topic models--package, which is supposed to work better with metadata than the LDA variety that David Blei invented and which has been used widely in the digital humanities.
+
+## Topic Models at the chunk level.
+
+Topic modeling is an algorithm that works best with a lot of words and a lot of documents. Just 20 chapters will probably *not* produce an information array of topics; so instead
+we'll divide the text up into chunks of about 250 words using the `add_chunks` function.
+
+```{r topicModelSOTUS, cache = TRUE}
+
+library(stm)
+
+sotus %>% 
+  group_by(president, party, year, paragraph) %>%
+  count(word) %>% 
+  add_chunks(n, 250) %>%
+  group_by(president, party, year, chunk) %>%
+  count(word, wt=n) -> chunks
+
+chunks %>%
+  filter(year > 1976) %>%
+  group_by(word) %>%
+  # Only words that appear 10 times.
+  filter(n() > 10) %>%
+  anti_join(stop_words) %>%
+  # Cast_dfm makes a sparse matrix that can be 
+  # fed into a topic model.
+  mutate(doc = paste(year, chunk)) %>%
+  cast_dfm(doc, word, n) %>%
+  # NOTE--> Set 'verbose == TRUE' if you want to see the topics as it runs.
+  stm(K = 75, init.type = "Spectral", verbose = FALSE, seed = 1) ->
+  model
+```
+
+A topic model has two parts to look at: a 'beta' matrix that gives the probabilities of any word being in any given topic;
+and a 'gamma' matrix that gives how much of each document is made up of each topic.
+
+You can simply inspect the beta topics
+to see what kinds of words appear together; or you can look at the gamma distributions to see how docs are spread across topics.
+
+```{r}
+word_probabilities = model %>%
+  tidy(matrix = "beta") %>%
+  group_by(topic) %>% 
+  arrange(-beta)
+
+topic_labels = word_probabilities %>%
+  slice(1:6) %>%
+  summarize(label = paste(term, collapse = " "))
+
+document_probs = model %>% tidy(matrix = "gamma")
+```
+
+The core idea of a topic model is that the distribution of topics in a document will predict the words.
+
+
+```{r}
+
+word_probabilities %>% inner_join(document_probs %>% ungroup %>% filter(document==1)) %>% mutate(prob = beta * gamma) %>% ungroup %>% summarize(s = sum(prob))
+   
+
+```
+
+Here are 25 topics sampled from the whole.
+
+```{r}
+set.seed(3)
+topic_labels %>% inner_join(document_probs) %>% group_by(label) %>% summarize(prevalence = mean(gamma)) %>%
+  arrange(-prevalence) %>% sample_n(25) %>% ggplot() + geom_bar(aes(x=reorder(label, prevalence), y = prevalence), stat = "identity") + coord_flip() +
+  labs(title = "25 random topics in post-1980\nState of the Unions")
+
+```
+
+```{r}
+labelled_speeches = chunks %>%
+  filter(year > 1980) %>% group_by(president, party, year, chunk) %>%
+  summarize(length = sum(n)) %>% ungroup %>%
+  mutate(document = 1:n()) %>%
+  inner_join(document_probs) %>%
+  inner_join(topic_labels)
+
+labelled_speeches %>%
+  group_by(president, label) %>% 
+  summarize(share = mean(gamma)) %>%
+  ggplot() +
+  geom_tile(aes(x=president, y = label, fill = share)) +
+  scale_fill_viridis_c()
+
+labelled_speeches %>%
+  group_by(year, label) %>% 
+  summarize(share = mean(gamma)) %>%
+  ungroup %>% 
+  filter(label %in% sample(unique(label), 8)) %>%
+  ggplot() +
+  geom_line(aes(x=year, y = share)) + 
+  facet_wrap(~label, ncol=2) + labs(title="Time Prevalence of 10 random topics")
+
+```

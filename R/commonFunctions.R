@@ -1,3 +1,6 @@
+library(tidyverse)
+library(tidytext)
+
 readfile <- function(filename) {
   read_lines(filename) %>%
     tibble(text = .) %>%
@@ -20,21 +23,25 @@ read_all_SOTUs <- function() {
 }
 
 
-summarize_pmi <- function(data, token, count = rep(1, n())) {
+summarize_pmi <- function(data, token, count = rep(1, n()), all_fields = FALSE) {
   token <- enquo(token)
   count <- enquo(count)
   groupings <- groups(data)
+  if (all_fields) {groups = quos(.pmi, .p_share, .count, .word_share, .total_words, .doc_total)} else {
+    groups = quos(.pmi, .p_share)
+  }
   data %>%
     group_by(!!!groupings, !!token) %>%
-    summarize(count = sum(!!count)) %>%
+    summarize(.count = sum(!!count)) %>%
     ungroup() %>%
-    mutate(total_words = sum(count)) %>%
+    mutate(.total_words = sum(.count)) %>%
     group_by(!!token) %>%
-    mutate(word_share = sum(count) / total_words) %>%
+    mutate(.word_share = sum(.count) / .total_words) %>%
     group_by(!!!groupings) %>%
-    mutate(p_share = count / sum(count)) %>%
-    mutate(pmi = log(p_share / word_share)) %>%
-    select(!!!groupings, !!token, pmi)
+    mutate(.doc_total = sum(.count), .p_share = .count/.doc_total) %>%
+    mutate(.pmi = log(.p_share / .word_share)) %>%
+    select(!!!groupings, !!token, !!!groups) %>%
+    ungroup
 }
 
 #' Add TF-IDF summary based on groupings.
@@ -72,17 +79,19 @@ summarize_tf_idf <- function(data, word, count = rep(1, n())) {
 #' Summarize the log-likelihood ratio across a grouped data frame
 #'
 #' @param data A data frame
-#' @param token The column indicating a token.
-#' @param count The column indicating wordcount data.
+#' @param token The column indicating a token. Unquoted.
+#' @param count The column indicating count data. Unquoted.
+#' @param sig_thresh The signifance level (p-value) to test against. Default is 0.05. 
 #'
-#' @return A dataframe with the supplied grouping and a log-likelihood for each token in that grouping.
+#' @return A dataframe with the supplied grouping and additional log-likelihood for each token in that grouping.
+#' 
+#' The direction of the Dunning scores are encoded with a sign.
 #' Strongly positive numbers are over-represented; strongly negative numbers are under-represented.
-#' Also included are unadjusted p-values assuming a single degree of freedom. It would be wise to correct this
-#' for the number of words using Sedak's correction or some other method; in practice, the size of this correction
-#' is highly responsive.
+#' Also included are unadjusted p-values assuming a single degree of freedom, and a significance test of the difference the Holm-Sidak 
+#' correction ranked by decreasing word frequency. (Holm-Sidak )
 #' @export
 #'
-summarize_llr <- function(data, token, count = rep(1, n())) {
+summarize_llr <- function(data, token, count = rep(1, n()), sig_thresh = 0.05) {
   token <- enquo(token)
   count <- enquo(count)
   groupings <- groups(data)
@@ -109,15 +118,21 @@ summarize_llr <- function(data, token, count = rep(1, n())) {
     mutate(score = 2 * (
       (count * log(
         count / exp.x
-      )) + count.y * log(count.y / exp.y))) %>%
-    mutate(p = pchisq(abs(score), df = 1)) %>%
+          ) + count.y * log(count.y / exp.y)))) %>%
+        # Using chi-square tables for the lookup; not exactly right.
+        mutate(p = pchisq(abs(score), df = 1)) %>%
+   # Holm-Sidak sig by frequency desc.
+        arrange(-grandtot) %>%
+        mutate(sig = p > (1 - sig_thresh)^(1/(1:n()))) %>%
     # Use negative signage to indicate *under-represented* words.
     mutate(score = ifelse((count.y - exp.y) > 0, -score, score)) %>%
     # Throw away some of the on-the-way calculations.
-    select(!!!groupings, !!token, dunning_llr = score, dunning_p = p) %>%
+    select(!!!groupings, !!token, dunning_llr = score, dunning_p = p, sig) %>%
     ungroup()
 }
 
+.t = tibble(word = c("good", "better", "best", "good", "better", "best"), g = c("A","A","A","B","B","B"), count = c(1,2,7,7,2,1))
+.t %>% group_by(g) %>% summarize_llr(token = word, count = count)
 add_chunks <- function(data, count = NULL, chunk_length = 2000) {
   count <- enquo(count)
   group_names <- group_vars(data)
@@ -129,11 +144,11 @@ add_chunks <- function(data, count = NULL, chunk_length = 2000) {
       mutate(.tally = cumsum(.count), chunk = 1 + .tally %/% chunk_length) %>%
       select(-.tally, -.count)
   } else {
-    d = data %>%
+    data %>%
       summarize(.count = sum(!!count)) %>%
       mutate(.tally = cumsum(.count), chunk = 1 + .tally %/% chunk_length) %>%
-      select(-.tally, -.count)
-    data %>% inner_join(d, by = group_names)
+      select(-.tally, -.count) %>% 
+      inner_join(data, ., by = group_names)
   }
 }
 
